@@ -1,7 +1,11 @@
-#main {
+#slot-page, #shop-page {
     padding: 5% 10% 0;
     margin: auto;
     text-align: center;
+}
+
+#shop-page {
+    display: none;
 }
 
 #slot-machine {
