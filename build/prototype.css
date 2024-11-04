@@ -1,0 +1,37 @@
+#main {
+    padding: 5% 10% 0;
+    margin: auto;
+    text-align: center;
+}
+
+#slot-machine {
+    --cell-size: 128px;
+
+    margin: 0 auto 10px;
+    display: flex;
+    flex-direction: row;
+    gap: 5px;
+    width: fit-content;
+    height: calc(var(--cell-size) * 3);
+}
+
+.reel {
+    display: flex;
+    gap: 0;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    overflow: hidden;
+    width: auto;
+}
+
+#reel-display {
+    display: inline-block;
+    width: 40%;
+}
+
+img {
+    width: var(--cell-size);
+    height: var(--cell-size);
+    box-sizing: border-box;
+    border: 1px solid black;
+}

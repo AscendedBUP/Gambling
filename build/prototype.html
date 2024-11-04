@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>LETS GO GAMBLING</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel='stylesheet' type='text/css' media='screen' href='prototype.css'>
+</head>
+<body>
+    <div id="main">
+        <div id="slot-machine">
+            <div class="reel">
+                <img src="symbols/cherry.png">
+                <img src="symbols/bell.png">
+                <img src="symbols/cherry.png">
+                <img src="symbols/star.png">
+            </div>
+            <div class="reel">
+                <img src="symbols/cherry.png">
+                <img src="symbols/bell.png">
+                <img src="symbols/cherry.png">
+                <img src="symbols/star.png">
+            </div>
+            <div class="reel">
+                <img src="symbols/cherry.png">
+                <img src="symbols/bell.png">
+                <img src="symbols/cherry.png">
+                <img src="symbols/star.png">
+            </div>
+        </div>
+
+        <template id="reel-template">
+            <div class="reel"></div>
+        </template>
+    
+        <button id="spin">SPIN!</button>
+        <button id="shop">Shop</button>
+
+        <h2 id="points-display">Points: 0</h2>
+    
+    </div>
+
+    <script src="compiled/helper_functions.js"></script>
+    <script src='compiled/prototype.js'></script>
+    <script src="compiled/test.js"></script>
+</body>
+</html>
