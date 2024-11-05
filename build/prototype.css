@@ -4,10 +4,6 @@
     text-align: center;
 }
 
-#shop-page {
-    display: none;
-}
-
 #slot-machine {
     --cell-size: 128px;
 
@@ -28,14 +24,15 @@
     width: auto;
 }
 
-#reel-display {
-    display: inline-block;
-    width: 40%;
-}
-
-img {
+.slot-cell {
     width: var(--cell-size);
     height: var(--cell-size);
     box-sizing: border-box;
     border: 1px solid black;
+}
+
+#listings {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
 }

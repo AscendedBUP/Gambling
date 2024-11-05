@@ -11,22 +11,22 @@
     <div id="slot-page">
         <div id="slot-machine">
             <div class="reel">
-                <img src="symbols/cherry.png">
-                <img src="symbols/bell.png">
-                <img src="symbols/cherry.png">
-                <img src="symbols/star.png">
+                <img class="slot-cell" src="symbols/cherry.png">
+                <img class="slot-cell" src="symbols/bell.png">
+                <img class="slot-cell" src="symbols/cherry.png">
+                <img class="slot-cell" src="symbols/star.png">
             </div>
             <div class="reel">
-                <img src="symbols/cherry.png">
-                <img src="symbols/bell.png">
-                <img src="symbols/cherry.png">
-                <img src="symbols/star.png">
+                <img class="slot-cell" src="symbols/cherry.png">
+                <img class="slot-cell" src="symbols/bell.png">
+                <img class="slot-cell" src="symbols/cherry.png">
+                <img class="slot-cell" src="symbols/star.png">
             </div>
             <div class="reel">
-                <img src="symbols/cherry.png">
-                <img src="symbols/bell.png">
-                <img src="symbols/cherry.png">
-                <img src="symbols/star.png">
+                <img class="slot-cell" src="symbols/cherry.png">
+                <img class="slot-cell" src="symbols/bell.png">
+                <img class="slot-cell" src="symbols/cherry.png">
+                <img class="slot-cell" src="symbols/star.png">
             </div>
         </div>
 
@@ -41,7 +41,27 @@
     </div>
 
     <div id="shop-page">
-        <h1>Testing</h1>
+        <div id="listings">
+            <div class="symbol-listing">
+                <img src="symbols/cherry.png">
+                <h3>Cost: 5</h3>
+                <button class="buy-symbol">Buy</button>
+            </div>
+            <div class="symbol-listing">
+                <img src="symbols/bell.png">
+                <h3>Cost: 20</h3>
+                <button class="buy-symbol">Buy</button>
+            </div>
+            <div class="symbol-listing">
+                <img src="symbols/star.png">
+                <h3>Cost: 50</h3>
+                <button class="buy-symbol">Buy</button>
+            </div>
+        </div>
+
+        <div id="reel-selector">
+            <div class="reel-contents"></div>
+        </div>
     </div>
 
     <script src="compiled/helper_functions.js"></script>

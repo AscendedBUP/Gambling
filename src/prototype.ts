@@ -3,6 +3,7 @@
 type ReelStrip = SlotMachineSymbols[]
 
 interface SymbolDataInterface {
+    symbolPath: string
     image: HTMLImageElement
     multiplier: number
 }
@@ -14,9 +15,22 @@ enum SlotMachineSymbols {
 }
 
 const SYMBOL_DATA: {[key in SlotMachineSymbols]: SymbolDataInterface} = {
-    "symbol-1": {image: preloadImage("symbols/cherry.png"), multiplier: 5},
-    "symbol-2": {image: preloadImage("symbols/bell.png"), multiplier: 10},
-    "symbol-3": {image: preloadImage("symbols/star.png"), multiplier: 25},
+    "symbol-1": {
+        symbolPath: "symbols/cherry.png",
+        image: slotCell(SlotMachineSymbols.CHERRY), 
+        multiplier: 5
+    },
+    "symbol-2": {
+        symbolPath: "symbols/bell.png",
+        image: slotCell(SlotMachineSymbols.BELL), 
+        multiplier: 10
+    
+    },
+    "symbol-3": {
+        symbolPath: "symbols/star.png",
+        image: slotCell(SlotMachineSymbols.STAR),
+        multiplier: 25
+    },
 }
 
 const DEFAULT_REEL: ReelStrip = [
@@ -127,10 +141,10 @@ class SlotMachineReel {
     }
 }
 
-function preloadImage(src): HTMLImageElement {
-    let newImage = new Image()
-    newImage.src = src
-    return newImage
+function slotCell(symbol: SlotMachineSymbols): HTMLImageElement {
+    let cellImage = preloadImage(SYMBOL_DATA[symbol].symbolPath)
+    cellImage.classList.add("slot-cell")
+    return cellImage
 }
 
 // let slotMachine = new SlotMachine(3, 3)
