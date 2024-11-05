@@ -8,6 +8,8 @@
     <link rel='stylesheet' type='text/css' media='screen' href='prototype.css'>
 </head>
 <body>
+    <h1 id="points-display">Points: 0</h2>
+
     <div id="slot-page">
         <div id="slot-machine">
             <div class="reel">
@@ -36,8 +38,6 @@
     
         <button id="spin">SPIN!</button>
         <button id="shop">Shop</button>
-
-        <h2 id="points-display">Points: 0</h2>
     </div>
 
     <div id="shop-page">
@@ -47,11 +47,13 @@
                 <h3>Cost: 5</h3>
                 <button class="buy-symbol">Buy</button>
             </div>
+
             <div class="symbol-listing">
                 <img src="symbols/bell.png">
                 <h3>Cost: 20</h3>
                 <button class="buy-symbol">Buy</button>
             </div>
+
             <div class="symbol-listing">
                 <img src="symbols/star.png">
                 <h3>Cost: 50</h3>
@@ -60,13 +62,56 @@
         </div>
 
         <div id="reel-selector">
-            <div class="reel-contents"></div>
+            <div class="reel-listing selected-reel">
+                <h2>Reel 1</h2>
+                <div class="reel-contents">
+                    <img src="symbols/cherry.png">
+                    <img src="symbols/cherry.png">
+                    <img src="symbols/cherry.png">
+                    <img src="symbols/cherry.png">
+                    <img src="symbols/cherry.png">
+                    <img src="symbols/cherry.png">
+                    <img src="symbols/cherry.png">
+                </div>
+            </div>
+
+            <div class="reel-listing">
+                <h2>Reel 2</h2>
+                <div class="reel-contents"></div>
+            </div>
+
+            <div class="reel-listing">
+                <h2>Reel 3</h2>
+                <div class="reel-contents"></div>
+            </div>
+
+            <div class="reel-listing" locked="true">
+                <h2>Reel 4</h2>
+                <div class="reel-contents"></div>
+
+                <div class="reel-lock">
+                    <button class="buy-reel">Buy Reel<br>100 points</button>
+                </div>
+            </div>
+
+            <div class="reel-listing" locked="true">
+                <h2>Reel 5</h2>
+                <div class="reel-contents"></div>
+
+                <div class="reel-lock">
+                    <button class="buy-reel">Buy Reel<br>100 points</button>
+                </div>
+            </div>
         </div>
+
+        <button id="close-shop">&#x2715;</button>
     </div>
 
     <script src="compiled/helper_functions.js"></script>
     <script src="compiled/flow_control.js"></script>
     <script src='compiled/prototype.js'></script>
     <script src="compiled/test.js"></script>
+    <script src="compiled/shop.js"></script>
+    <script src="compiled/reel_shop.js"></script>
 </body>
 </html>

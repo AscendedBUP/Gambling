@@ -83,4 +83,9 @@ function sizedArray2D(size1, size2) {
 function random(min, max) {
     return Math.floor(Math.random() * (max - min)) + min;
 }
+function preloadImage(src) {
+    let newImage = new Image();
+    newImage.src = src;
+    return newImage;
+}
 //# sourceMappingURL=helper_functions.js.map

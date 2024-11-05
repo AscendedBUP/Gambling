@@ -1,10 +1,10 @@
 let slotPage = document.querySelector("#slot-page") as HTMLDivElement
 let shopPage = document.querySelector("#shop-page") as HTMLDivElement
-let shopButton = document.querySelector("#shop") as HTMLButtonElement
-
-shopButton.onclick = switchToShop
+document.querySelector("#shop").addEventListener('click', switchToShop)
+document.querySelector("#close-shop").addEventListener('mousedown', switchToSlot)
 
 switchToShop()
+// shopPage.style.display = 'none'
 
 function switchToShop() {
     slotPage.style.display = 'none'

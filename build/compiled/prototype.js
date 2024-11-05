@@ -6,9 +6,21 @@ var SlotMachineSymbols;
     SlotMachineSymbols["STAR"] = "symbol-3";
 })(SlotMachineSymbols || (SlotMachineSymbols = {}));
 const SYMBOL_DATA = {
-    "symbol-1": { image: preloadImage("symbols/cherry.png"), multiplier: 5 },
-    "symbol-2": { image: preloadImage("symbols/bell.png"), multiplier: 10 },
-    "symbol-3": { image: preloadImage("symbols/star.png"), multiplier: 25 },
+    "symbol-1": {
+        symbolPath: "symbols/cherry.png",
+        image: slotCell("symbols/cherry.png"),
+        multiplier: 5
+    },
+    "symbol-2": {
+        symbolPath: "symbols/bell.png",
+        image: slotCell("symbols/bell.png"),
+        multiplier: 10
+    },
+    "symbol-3": {
+        symbolPath: "symbols/star.png",
+        image: slotCell("symbols/star.png"),
+        multiplier: 25
+    },
 };
 const DEFAULT_REEL = [
     SlotMachineSymbols.CHERRY,
@@ -96,10 +108,10 @@ class SlotMachineReel {
         }
     }
 }
-function preloadImage(src) {
-    let newImage = new Image();
-    newImage.src = src;
-    return newImage;
+function slotCell(symbolPath) {
+    let cellImage = preloadImage(symbolPath);
+    cellImage.classList.add("slot-cell");
+    return cellImage;
 }
 // let slotMachine = new SlotMachine(3, 3)
 // document.querySelector("#spin").addEventListener("click", () => { slotMachine.spin() })

@@ -17,18 +17,18 @@ enum SlotMachineSymbols {
 const SYMBOL_DATA: {[key in SlotMachineSymbols]: SymbolDataInterface} = {
     "symbol-1": {
         symbolPath: "symbols/cherry.png",
-        image: slotCell(SlotMachineSymbols.CHERRY), 
+        image: slotCell("symbols/cherry.png"), 
         multiplier: 5
     },
     "symbol-2": {
         symbolPath: "symbols/bell.png",
-        image: slotCell(SlotMachineSymbols.BELL), 
+        image: slotCell("symbols/bell.png"), 
         multiplier: 10
     
     },
     "symbol-3": {
         symbolPath: "symbols/star.png",
-        image: slotCell(SlotMachineSymbols.STAR),
+        image: slotCell("symbols/star.png"),
         multiplier: 25
     },
 }
@@ -141,8 +141,8 @@ class SlotMachineReel {
     }
 }
 
-function slotCell(symbol: SlotMachineSymbols): HTMLImageElement {
-    let cellImage = preloadImage(SYMBOL_DATA[symbol].symbolPath)
+function slotCell(symbolPath: string): HTMLImageElement {
+    let cellImage = preloadImage(symbolPath)
     cellImage.classList.add("slot-cell")
     return cellImage
 }

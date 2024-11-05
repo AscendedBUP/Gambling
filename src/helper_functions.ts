@@ -112,7 +112,7 @@ function sizedArray2D<Type>(size1: number, size2: number): Type[][] {
     return Math.floor(Math.random() * (max - min)) + min
 }
 
-function preloadImage(src): HTMLImageElement {
+function preloadImage(src: string): HTMLImageElement {
     let newImage = new Image()
     newImage.src = src
     return newImage
