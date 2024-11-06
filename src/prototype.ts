@@ -1,10 +1,23 @@
+type SymbolSpread = Record<SlotMachineSymbols, number>
+
 const SLOT_MACHINE_MAX_WIDTH = 5
 const SLOT_MACHINE_STARTING_WIDTH = 3
 const SLOT_MACHINE_HEIGHT = 3
+const CELL_SIZE = 128
+const SPIN_LENGTH = 16
+const POINT_DISPLAY_FORMAT = "Points: %s"
 
-let score = 0
+const SEQUENCE_LENGTH_MULTIPLIER: Record<number, number> = {
+    3: 1,
+    4: 5,
+    5: 50
+}
 
-type SymbolSpread = Record<SlotMachineSymbols, number>
+const DEFAULT_SYMBOL_SPREAD: Record<SlotMachineSymbols, number> = {
+    "symbol-1": 11,
+    "symbol-2": 8,
+    "symbol-3": 5
+}
 
 enum SlotMachineSymbols {
     CHERRY = 'symbol-1', 
@@ -15,25 +28,25 @@ enum SlotMachineSymbols {
 interface SymbolDataInterface {
     imagePath: string
     image: HTMLImageElement
-    multiplier: number
+    score: number
 }
 
 const SYMBOL_DATA: {[key in SlotMachineSymbols]: SymbolDataInterface} = {
     "symbol-1": {
         imagePath: "symbols/cherry.png",
         image: slotCell("symbols/cherry.png"), 
-        multiplier: 5
+        score: 5
     },
     "symbol-2": {
         imagePath: "symbols/bell.png",
         image: slotCell("symbols/bell.png"), 
-        multiplier: 10
+        score: 10
     
     },
     "symbol-3": {
         imagePath: "symbols/star.png",
         image: slotCell("symbols/star.png"),
-        multiplier: 25
+        score: 25
     },
 }
 
@@ -41,6 +54,7 @@ class SlotMachine {
     element = document.querySelector("#slot-machine") as HTMLDivElement
     reels: SlotMachineReel[] = []
     rolledSymbols = new Matrix<SlotMachineSymbols>(SLOT_MACHINE_MAX_WIDTH, SLOT_MACHINE_HEIGHT)
+    isSpinning: boolean = false
 
     constructor() {
         for (let i = 0; i < SLOT_MACHINE_STARTING_WIDTH; i++) {
@@ -49,10 +63,15 @@ class SlotMachine {
     }
 
     async spin() {
+        if (this.isSpinning)
+            return
+
+        this.isSpinning = true
         let resultPromises: Promise<SlotMachineSymbols[]>[] = []
 
         for (const reel of this.reels) {
             resultPromises.push(reel.spin())
+            await delay(400)
         }
 
         for (let i = 0; i < resultPromises.length; i++) {
@@ -61,15 +80,36 @@ class SlotMachine {
         }
 
         this.calculateResultScore()
+        this.isSpinning = false
     }
 
     calculateResultScore() {
-        console.log(this.rolledSymbols)
+        for (const row of this.rolledSymbols.rows) {
+            updateScore(this.scoreSequence(row))
+        }
+    }
+
+    scoreSequence(symbolSequence: SlotMachineSymbols[]): number {
+        let length = 0
+        let previousSymbol: SlotMachineSymbols
+
+        for (const symbol of symbolSequence) {
+            if (previousSymbol != undefined && previousSymbol != symbol)
+                break
+
+            length++
+            previousSymbol = symbol
+        }
+
+        if (length < 3)
+            return 0
+        
+        return SYMBOL_DATA[previousSymbol].score * SEQUENCE_LENGTH_MULTIPLIER[length]
     }
 }
 
 class SlotMachineReel {
-    symbolSpread: SymbolSpread = testSymbolSpread
+    symbolSpread: SymbolSpread = DEFAULT_SYMBOL_SPREAD
     element: HTMLDivElement
     currentSymbols: SlotMachineSymbols[]
 
@@ -81,10 +121,10 @@ class SlotMachineReel {
 
     async spin(): Promise<SlotMachineSymbols[]> {
         this.fillReel(SPIN_LENGTH)
-        let result = this.fillReel(4)
+        let result = this.fillReel(3)
 
         await smoothScrollBy(this.element, {top: -CELL_SIZE / 2})
-        await acceleratingScrollTo(this.element, {top: CELL_SIZE * (SPIN_LENGTH + 1) }, 50, 4)
+        await acceleratingScrollTo(this.element, {top: CELL_SIZE * (SPIN_LENGTH + 4)}, 50, 4)
         
         this.cleanReel()
         return result
@@ -113,8 +153,8 @@ class SlotMachineReel {
         let result: SlotMachineSymbols[] = []
         let potentialCells: SlotMachineSymbols[] = []
 
-        for (const symbol in testSymbolSpread) {
-            let amount = testSymbolSpread[symbol]
+        for (const symbol in DEFAULT_SYMBOL_SPREAD) {
+            let amount = DEFAULT_SYMBOL_SPREAD[symbol]
             for (let i = 0; i < amount; i++) {
                 potentialCells.push(symbol as SlotMachineSymbols)
             }
@@ -134,8 +174,6 @@ class SlotMachineReel {
         let reelTemplateClone = reelTemplate.content
         let newReel = reelTemplateClone.querySelector(".reel").cloneNode() as HTMLDivElement
 
-        console.log(newReel)
-
         slotMachine.appendChild(newReel)
         return newReel
     }
@@ -147,9 +185,14 @@ function slotCell(symbolPath: string): HTMLImageElement {
     return cellImage
 }
 
+let score = 0
+
+function updateScore(points: number) {
+    score += points
+    document.querySelector("#points-display").textContent = `Points: ${score}`
+    console.log("current score", score)
+}
+
 let slotMachine = new SlotMachine()
 
 document.querySelector("#spin").addEventListener("click", () => { slotMachine.spin() })
-
-// document.querySelector("#spin").addEventListener("click", () => { slotMachine.spin() })
-

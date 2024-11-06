@@ -17,9 +17,9 @@ function selectReel(reel: HTMLDivElement) {
 }
 
 let reelContents: HTMLImageElement[] = []
-for (const symbol in testSymbolSpread) {
+for (const symbol in DEFAULT_SYMBOL_SPREAD) {
     let symbolImage = createImage(SYMBOL_DATA[symbol as SlotMachineSymbols].imagePath)
-    let symbolCount = testSymbolSpread[symbol]
+    let symbolCount = DEFAULT_SYMBOL_SPREAD[symbol]
 
     for (let i = 0; i < symbolCount; i++) {
         reelContents.push(symbolImage.cloneNode() as HTMLImageElement)

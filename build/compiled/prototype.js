@@ -10,7 +10,19 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 const SLOT_MACHINE_MAX_WIDTH = 5;
 const SLOT_MACHINE_STARTING_WIDTH = 3;
 const SLOT_MACHINE_HEIGHT = 3;
-let score = 0;
+const CELL_SIZE = 128;
+const SPIN_LENGTH = 16;
+const POINT_DISPLAY_FORMAT = "Points: %s";
+const SEQUENCE_LENGTH_MULTIPLIER = {
+    3: 1,
+    4: 5,
+    5: 50
+};
+const DEFAULT_SYMBOL_SPREAD = {
+    "symbol-1": 11,
+    "symbol-2": 8,
+    "symbol-3": 5
+};
 var SlotMachineSymbols;
 (function (SlotMachineSymbols) {
     SlotMachineSymbols["CHERRY"] = "symbol-1";
@@ -21,17 +33,17 @@ const SYMBOL_DATA = {
     "symbol-1": {
         imagePath: "symbols/cherry.png",
         image: slotCell("symbols/cherry.png"),
-        multiplier: 5
+        score: 5
     },
     "symbol-2": {
         imagePath: "symbols/bell.png",
         image: slotCell("symbols/bell.png"),
-        multiplier: 10
+        score: 10
     },
     "symbol-3": {
         imagePath: "symbols/star.png",
         image: slotCell("symbols/star.png"),
-        multiplier: 25
+        score: 25
     },
 };
 class SlotMachine {
@@ -39,30 +51,51 @@ class SlotMachine {
         this.element = document.querySelector("#slot-machine");
         this.reels = [];
         this.rolledSymbols = new Matrix(SLOT_MACHINE_MAX_WIDTH, SLOT_MACHINE_HEIGHT);
+        this.isSpinning = false;
         for (let i = 0; i < SLOT_MACHINE_STARTING_WIDTH; i++) {
             this.reels.push(new SlotMachineReel(this.element));
         }
     }
     spin() {
         return __awaiter(this, void 0, void 0, function* () {
+            if (this.isSpinning)
+                return;
+            this.isSpinning = true;
             let resultPromises = [];
             for (const reel of this.reels) {
                 resultPromises.push(reel.spin());
+                yield delay(400);
             }
             for (let i = 0; i < resultPromises.length; i++) {
                 let reelResult = yield resultPromises[i];
                 this.rolledSymbols.replaceColumn(i, ...reelResult);
             }
             this.calculateResultScore();
+            this.isSpinning = false;
         });
     }
     calculateResultScore() {
-        console.log(this.rolledSymbols);
+        for (const row of this.rolledSymbols.rows) {
+            updateScore(this.scoreSequence(row));
+        }
+    }
+    scoreSequence(symbolSequence) {
+        let length = 0;
+        let previousSymbol;
+        for (const symbol of symbolSequence) {
+            if (previousSymbol != undefined && previousSymbol != symbol)
+                break;
+            length++;
+            previousSymbol = symbol;
+        }
+        if (length < 3)
+            return 0;
+        return SYMBOL_DATA[previousSymbol].score * SEQUENCE_LENGTH_MULTIPLIER[length];
     }
 }
 class SlotMachineReel {
     constructor(slotMachine) {
-        this.symbolSpread = testSymbolSpread;
+        this.symbolSpread = DEFAULT_SYMBOL_SPREAD;
         this.element = this.createReelElement(slotMachine);
         this.currentSymbols = this.fillReel(4).slice(1, 3);
         this.element.scroll({ top: CELL_SIZE, behavior: "instant" });
@@ -70,9 +103,9 @@ class SlotMachineReel {
     spin() {
         return __awaiter(this, void 0, void 0, function* () {
             this.fillReel(SPIN_LENGTH);
-            let result = this.fillReel(4);
+            let result = this.fillReel(3);
             yield smoothScrollBy(this.element, { top: -CELL_SIZE / 2 });
-            yield acceleratingScrollTo(this.element, { top: CELL_SIZE * (SPIN_LENGTH + 1) }, 50, 4);
+            yield acceleratingScrollTo(this.element, { top: CELL_SIZE * (SPIN_LENGTH + 4) }, 50, 4);
             this.cleanReel();
             return result;
         });
@@ -95,8 +128,8 @@ class SlotMachineReel {
     getRandomSymbols(length) {
         let result = [];
         let potentialCells = [];
-        for (const symbol in testSymbolSpread) {
-            let amount = testSymbolSpread[symbol];
+        for (const symbol in DEFAULT_SYMBOL_SPREAD) {
+            let amount = DEFAULT_SYMBOL_SPREAD[symbol];
             for (let i = 0; i < amount; i++) {
                 potentialCells.push(symbol);
             }
@@ -112,7 +145,6 @@ class SlotMachineReel {
         let reelTemplate = document.querySelector("#reel-template");
         let reelTemplateClone = reelTemplate.content;
         let newReel = reelTemplateClone.querySelector(".reel").cloneNode();
-        console.log(newReel);
         slotMachine.appendChild(newReel);
         return newReel;
     }
@@ -122,7 +154,12 @@ function slotCell(symbolPath) {
     cellImage.classList.add("slot-cell");
     return cellImage;
 }
+let score = 0;
+function updateScore(points) {
+    score += points;
+    document.querySelector("#points-display").textContent = `Points: ${score}`;
+    console.log("current score", score);
+}
 let slotMachine = new SlotMachine();
 document.querySelector("#spin").addEventListener("click", () => { slotMachine.spin(); });
-// document.querySelector("#spin").addEventListener("click", () => { slotMachine.spin() })
 //# sourceMappingURL=prototype.js.map

@@ -33,7 +33,7 @@ class Matrix<Type> {
             throw new Error("Invalid new Column size");
         
         for (let y = 0; y < this.height; y++) {
-            this.columns[index][y] = items[y]
+            this.replaceItem(index, y, items[y])
         }
     }
 
@@ -41,8 +41,8 @@ class Matrix<Type> {
         if (items.length != this.width)
             throw new Error("Invalid new Row size");
         
-        for (let X = 0; X < this.width; X++) {
-            this.rows[index][X] = items[X]
+        for (let x = 0; x < this.width; x++) {
+            this.replaceItem(x, index, items[x])
         }
     }
 }
