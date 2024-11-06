@@ -109,8 +109,11 @@ class SlotMachine {
 }
 
 class SlotMachineReel {
-    symbolSpread: SymbolSpread = DEFAULT_SYMBOL_SPREAD
     element: HTMLDivElement
+    contentsDisplay: HTMLDivElement
+    symbolSpread = new Proxy(structuredClone(DEFAULT_SYMBOL_SPREAD), {
+        set: this.updateContentsDisplay
+    })
     currentSymbols: SlotMachineSymbols[]
 
     constructor(slotMachine: HTMLDivElement) {
@@ -177,6 +180,23 @@ class SlotMachineReel {
         slotMachine.appendChild(newReel)
         return newReel
     }
+
+    updateContentsDisplay(symbolSpread: SymbolSpread, key: SlotMachineSymbols, newAmount: number): boolean {
+        newAmount = Math.max(0, newAmount)
+        let difference = newAmount - symbolSpread[key]
+
+
+        if (difference > 0) {
+            this.contentsDisplay
+        }
+        else if (difference < 0) {
+            this.contentsDisplay.querySelectorAll("img")
+        }
+
+        return Reflect.set(symbolSpread, key, newAmount)
+    }
+
+    // Add function to add images to content display with a property detailing what symbol they are for
 }
 
 function slotCell(symbolPath: string): HTMLImageElement {

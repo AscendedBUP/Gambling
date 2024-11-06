@@ -1,84 +1,84 @@
- function delay(milliseconds: number) {
+function delay(milliseconds: number) {
     return new Promise<void>(resolve => { setTimeout(resolve, milliseconds) })
 }
 
- function acceleratingScrollTo(element: Element, offset: {left?: number, top?: number}, targetSpeed = 8, acceleration = 2) {
-    let scrollTargetX = (offset.left) ? offset.left : element.scrollLeft
-    let scrollTargetY = (offset.top) ? offset.top : element.scrollTop
-    let scrollDirectionX = Math.sign(scrollTargetX - element.scrollLeft)
-    let scrollDirectionY = Math.sign(scrollTargetY - element.scrollTop)
+function acceleratingScrollTo(element: Element, offset: {left?: number, top?: number}, targetSpeed = 8, acceleration = 2) {
+	let scrollTargetX = (offset.left) ? offset.left : element.scrollLeft
+	let scrollTargetY = (offset.top) ? offset.top : element.scrollTop
+	let scrollDirectionX = Math.sign(scrollTargetX - element.scrollLeft)
+	let scrollDirectionY = Math.sign(scrollTargetY - element.scrollTop)
 
-    return new Promise<void>((resolve, reject) => {
-        const scrollXInterval = (scrollDirectionX != 0) ? setInterval(scrollX, 20) : 0
-        const scrollYInterval = (scrollDirectionY != 0) ? setInterval(scrollY, 20) : 0
-        let scrollXDone = (scrollDirectionX == 0)
-        let scrollYDone = (scrollDirectionY == 0)
-        let currentSpeedX = acceleration
-        let currentSpeedY = acceleration
+	return new Promise<void>((resolve, reject) => {
+		const scrollXInterval = (scrollDirectionX != 0) ? setInterval(scrollX, 20) : 0
+		const scrollYInterval = (scrollDirectionY != 0) ? setInterval(scrollY, 20) : 0
+		let scrollXDone = (scrollDirectionX == 0)
+		let scrollYDone = (scrollDirectionY == 0)
+		let currentSpeedX = acceleration
+		let currentSpeedY = acceleration
 
-        function scrollX() {
-            let elementPreviousScroll = element.scrollLeft
-            element.scrollBy({left: currentSpeedX * scrollDirectionX, top: currentSpeedX * scrollDirectionY, behavior: "instant"})
+		function scrollX() {
+			let elementPreviousScroll = element.scrollLeft
+			element.scrollBy({left: currentSpeedX * scrollDirectionX, top: currentSpeedX * scrollDirectionY, behavior: "instant"})
 
-            // console.log(elementPreviousScroll, element.scrollLeft)
+			// console.log(elementPreviousScroll, element.scrollLeft)
 
-            if (elementPreviousScroll == element.scrollLeft)
-                failScroll()
-            
-            if (currentSpeedX < targetSpeed) 
-                currentSpeedX = Math.min(currentSpeedX + acceleration, targetSpeed)
+			if (elementPreviousScroll == element.scrollLeft)
+				failScroll()
+			
+			if (currentSpeedX < targetSpeed) 
+				currentSpeedX = Math.min(currentSpeedX + acceleration, targetSpeed)
 
-            if (Math.sign(scrollTargetX - element.scrollLeft) == scrollDirectionX)
-                return
+			if (Math.sign(scrollTargetX - element.scrollLeft) == scrollDirectionX)
+				return
 
-            element.scrollTo({left: scrollTargetX, behavior: "instant"})
-            clearTimeout(scrollXInterval)
-            scrollXDone = true
+			element.scrollTo({left: scrollTargetX, behavior: "instant"})
+			clearTimeout(scrollXInterval)
+			scrollXDone = true
 
-            if (scrollYDone)
-                resolve()
-        }
+			if (scrollYDone)
+				resolve()
+		}
 
-        function scrollY() {
-            let elementPreviousScroll = element.scrollTop
-            element.scrollBy({left: currentSpeedY * scrollDirectionX, top: currentSpeedY * scrollDirectionY, behavior: "instant"})
+		function scrollY() {
+			let elementPreviousScroll = element.scrollTop
+			element.scrollBy({left: currentSpeedY * scrollDirectionX, top: currentSpeedY * scrollDirectionY, behavior: "instant"})
 
-            // console.log(elementPreviousScroll, element.scrollTop, scrollTargetY, Math.sign(scrollTargetY - element.scrollTop))
+			// console.log(elementPreviousScroll, element.scrollTop, scrollTargetY, Math.sign(scrollTargetY - element.scrollTop))
 
-            if (elementPreviousScroll == element.scrollTop)
-                failScroll()
+			if (elementPreviousScroll == element.scrollTop)
+				failScroll()
 
-            if (currentSpeedY < targetSpeed) 
-                currentSpeedY = Math.min(currentSpeedY + acceleration, targetSpeed)
+			if (currentSpeedY < targetSpeed) 
+				currentSpeedY = Math.min(currentSpeedY + acceleration, targetSpeed)
 
-            if (Math.sign(scrollTargetY - element.scrollTop) == scrollDirectionY)
-                return
+			if (Math.sign(scrollTargetY - element.scrollTop) == scrollDirectionY)
+				return
 
-            element.scrollTo({top: scrollTargetY, behavior: "instant"})
-            clearTimeout(scrollYInterval)
-            scrollYDone = true
+			element.scrollTo({top: scrollTargetY, behavior: "instant"})
+			clearTimeout(scrollYInterval)
+			scrollYDone = true
 
-            if (scrollXDone)
-                resolve()
-        }
+			if (scrollXDone)
+				resolve()
+		}
 
-        function failScroll() {
-            clearInterval(scrollXInterval)
-            clearInterval(scrollYInterval)
-            reject()
-        }
-    })
+		function failScroll() {
+			clearInterval(scrollXInterval)
+			clearInterval(scrollYInterval)
+			reject()
+		}
+	})
 }
 
- function linearScrollTo(element: Element, offset: {left?: number, top?: number}, speed = 8) {
-    return acceleratingScrollTo(element, offset, speed, speed)
+function linearScrollTo(element: Element, offset: {left?: number, top?: number}, speed = 8) {
+	return acceleratingScrollTo(element, offset, speed, speed)
 }
 
- function linearScrollBy(element: Element, offset: {left?: number, top?: number}, speed = 8) {
-    let scrollTargetX = (offset.left) ? element.scrollLeft + offset.left : element.scrollLeft
-    let scrollTargetY = (offset.top) ? element.scrollTop + offset.top : element.scrollTop
+function linearScrollBy(element: Element, offset: {left?: number, top?: number}, speed = 8) {
+	let scrollTargetX = (offset.left) ? element.scrollLeft + offset.left : element.scrollLeft
+	let scrollTargetY = (offset.top) ? element.scrollTop + offset.top : element.scrollTop
 
-    return linearScrollTo(element, {left: scrollTargetX, top: scrollTargetY}, speed)
+	return linearScrollTo(element, {left: scrollTargetX, top: scrollTargetY}, speed)
 }
 
  function smoothScroll(element: Element, offset: {left?: number, top?: number}, timeLimit = 3000) {

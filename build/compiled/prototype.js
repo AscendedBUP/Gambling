@@ -161,5 +161,7 @@ function updateScore(points) {
     console.log("current score", score);
 }
 let slotMachine = new SlotMachine();
+DEFAULT_SYMBOL_SPREAD["symbol-1"] = 0;
+console.log(slotMachine.reels[0].symbolSpread);
 document.querySelector("#spin").addEventListener("click", () => { slotMachine.spin(); });
 //# sourceMappingURL=prototype.js.map
