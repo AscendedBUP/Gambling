@@ -11,4 +11,14 @@ function selectReel(reel) {
     selectedReel = reel;
     reel.classList.add("selected-reel");
 }
+let reelContents = [];
+for (const symbol in testSymbolSpread) {
+    let symbolImage = createImage(SYMBOL_DATA[symbol].imagePath);
+    let symbolCount = testSymbolSpread[symbol];
+    for (let i = 0; i < symbolCount; i++) {
+        reelContents.push(symbolImage.cloneNode());
+    }
+}
+console.log(reelContents);
+selectedReel.querySelector(".reel-contents").replaceChildren(...reelContents);
 //# sourceMappingURL=shop.js.map

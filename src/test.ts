@@ -16,6 +16,7 @@ let slotMachine = document.querySelector('#slot-machine') as HTMLDivElement
 let reels = document.querySelectorAll(".reel") 
 let pointsDisplay = document.querySelector("#points-display") as HTMLHeadingElement
 
+console.log(reels)
 slotMachine.style.setProperty("--cell-size", `${CELL_SIZE}px`)
 
 let scrollPosition = 0

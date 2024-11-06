@@ -21,6 +21,7 @@ document.querySelector("#spin").addEventListener("click", onSpinClick);
 let slotMachine = document.querySelector('#slot-machine');
 let reels = document.querySelectorAll(".reel");
 let pointsDisplay = document.querySelector("#points-display");
+console.log(reels);
 slotMachine.style.setProperty("--cell-size", `${CELL_SIZE}px`);
 let scrollPosition = 0;
 let scrollTarget = 0;

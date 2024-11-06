@@ -8,7 +8,7 @@
             "type": "firefox",
             "request": "launch",
             "name": "Open prototype.html",
-            "file": "d:\\Programming_Projects\\Gambling_Better\\build\\prototype.html"
+            "file": "D:\\discepolodar\\Gambling\\Gambling\\build\\prototype.html"
         }
     ]
 }

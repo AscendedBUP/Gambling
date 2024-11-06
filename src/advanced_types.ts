@@ -1,6 +1,6 @@
 // import { sizedArray2D } from "./helper_functions"
 
-export class Vector2<T> {
+class Vector2<T> {
     x: T
     y: T
 
@@ -10,7 +10,7 @@ export class Vector2<T> {
     }
 }
 
-export class Matrix<Type> {
+class Matrix<Type> {
     width: number
     height: number
     columns: Type[][]
@@ -22,9 +22,32 @@ export class Matrix<Type> {
         this.columns = sizedArray2D(width, height)
         this.rows = sizedArray2D(height, width)
     }
+
+    replaceItem(x: number, y: number, item: Type) {
+        this.columns[x][y] = item
+        this.rows[y][x] = item
+    }
+
+    replaceColumn(index: number, ...items: Type[]) {
+        if (items.length != this.height)
+            throw new Error("Invalid new Column size");
+        
+        for (let y = 0; y < this.height; y++) {
+            this.columns[index][y] = items[y]
+        }
+    }
+
+    replaceRow(index: number, ...items: Type[]) {
+        if (items.length != this.width)
+            throw new Error("Invalid new Row size");
+        
+        for (let X = 0; X < this.width; X++) {
+            this.rows[index][X] = items[X]
+        }
+    }
 }
 
-export class Signal<Data=void> {
+class Signal<Data=void> {
     listeners: CallableFunction[] = [];
 
     addEventListener(listener: CallableFunction) {

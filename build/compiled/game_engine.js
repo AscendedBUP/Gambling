@@ -1,7 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.GraphicsManager = exports.GameEngine = void 0;
-const engine_settings_1 = require("./engine_settings");
 var RenderingLayers;
 (function (RenderingLayers) {
     RenderingLayers[RenderingLayers["BACKGROUND"] = 0] = "BACKGROUND";
@@ -34,7 +33,7 @@ class GameManager {
 }
 class GraphicsManager {
     constructor() {
-        this.canvasSize = engine_settings_1.SETTINGS.canvasSize;
+        this.canvasSize = SETTINGS.canvasSize;
         this.initializeLayers();
     }
     initializeLayers() {

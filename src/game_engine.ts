@@ -1,6 +1,3 @@
-import { Signal, Vector2 } from "./advanced_types";
-import { SETTINGS } from "./engine_settings";
-
 enum RenderingLayers {
     BACKGROUND,
     GAME_1,
