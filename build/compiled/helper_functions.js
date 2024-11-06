@@ -73,6 +73,11 @@ function smoothScroll(element, offset, timeLimit = 3000) {
         }
     });
 }
+function smoothScrollBy(element, offset, timeLimit = 3000) {
+    let scrollTargetX = (offset.left) ? element.scrollLeft + offset.left : element.scrollLeft;
+    let scrollTargetY = (offset.top) ? element.scrollTop + offset.top : element.scrollTop;
+    return smoothScroll(element, { left: scrollTargetX, top: scrollTargetY }, timeLimit);
+}
 function sizedArray2D(size1, size2) {
     let newArray = [];
     for (let i = 0; i < size1; i++) {

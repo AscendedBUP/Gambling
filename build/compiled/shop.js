@@ -19,6 +19,6 @@ for (const symbol in testSymbolSpread) {
         reelContents.push(symbolImage.cloneNode());
     }
 }
-console.log(reelContents);
+// console.log(reelContents)
 selectedReel.querySelector(".reel-contents").replaceChildren(...reelContents);
 //# sourceMappingURL=shop.js.map

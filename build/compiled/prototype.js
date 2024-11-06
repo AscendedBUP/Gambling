@@ -1,3 +1,16 @@
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+const SLOT_MACHINE_MAX_WIDTH = 5;
+const SLOT_MACHINE_STARTING_WIDTH = 3;
+const SLOT_MACHINE_HEIGHT = 3;
+let score = 0;
 var SlotMachineSymbols;
 (function (SlotMachineSymbols) {
     SlotMachineSymbols["CHERRY"] = "symbol-1";
@@ -22,65 +35,94 @@ const SYMBOL_DATA = {
     },
 };
 class SlotMachine {
-    constructor(width, height) {
+    constructor() {
         this.element = document.querySelector("#slot-machine");
         this.reels = [];
-        width = Math.min(width, 5);
-        for (let i = 0; i < width; i++) {
-            this.reels.push(new SlotMachineReel);
+        this.rolledSymbols = new Matrix(SLOT_MACHINE_MAX_WIDTH, SLOT_MACHINE_HEIGHT);
+        for (let i = 0; i < SLOT_MACHINE_STARTING_WIDTH; i++) {
+            this.reels.push(new SlotMachineReel(this.element));
         }
     }
     spin() {
-        for (const reel of this.reels) {
-            reel.spin();
-        }
+        return __awaiter(this, void 0, void 0, function* () {
+            let resultPromises = [];
+            for (const reel of this.reels) {
+                resultPromises.push(reel.spin());
+            }
+            for (let i = 0; i < resultPromises.length; i++) {
+                let reelResult = yield resultPromises[i];
+                this.rolledSymbols.replaceColumn(i, ...reelResult);
+            }
+            this.calculateResultScore();
+        });
+    }
+    calculateResultScore() {
+        console.log(this.rolledSymbols);
     }
 }
 class SlotMachineReel {
+    constructor(slotMachine) {
+        this.symbolSpread = testSymbolSpread;
+        this.element = this.createReelElement(slotMachine);
+        this.currentSymbols = this.fillReel(4).slice(1, 3);
+        this.element.scroll({ top: CELL_SIZE, behavior: "instant" });
+    }
     spin() {
+        return __awaiter(this, void 0, void 0, function* () {
+            this.fillReel(SPIN_LENGTH);
+            let result = this.fillReel(4);
+            yield smoothScrollBy(this.element, { top: -CELL_SIZE / 2 });
+            yield acceleratingScrollTo(this.element, { top: CELL_SIZE * (SPIN_LENGTH + 1) }, 50, 4);
+            this.cleanReel();
+            return result;
+        });
+    }
+    fillReel(symbolAmount) {
+        let reelCells = [];
+        let resultSymbols = this.getRandomSymbols(symbolAmount);
+        for (const symbol of resultSymbols) {
+            let newCell = slotCell(SYMBOL_DATA[symbol].imagePath);
+            reelCells.push(newCell);
+        }
+        this.element.append(...reelCells);
+        return resultSymbols;
+    }
+    cleanReel() {
+        let necessaryCells = this.element.querySelectorAll("img:nth-last-child(-n + 4)");
+        this.element.replaceChildren(...necessaryCells);
+        this.element.scrollTo({ top: CELL_SIZE, behavior: "instant" });
+    }
+    getRandomSymbols(length) {
+        let result = [];
+        let potentialCells = [];
+        for (const symbol in testSymbolSpread) {
+            let amount = testSymbolSpread[symbol];
+            for (let i = 0; i < amount; i++) {
+                potentialCells.push(symbol);
+            }
+        }
+        for (let i = 0; i < length; i++) {
+            let randomIndex = random(0, potentialCells.length);
+            let symbol = potentialCells.splice(randomIndex, 1)[0];
+            result.push(symbol);
+        }
+        return result;
+    }
+    createReelElement(slotMachine) {
+        let reelTemplate = document.querySelector("#reel-template");
+        let reelTemplateClone = reelTemplate.content;
+        let newReel = reelTemplateClone.querySelector(".reel").cloneNode();
+        console.log(newReel);
+        slotMachine.appendChild(newReel);
+        return newReel;
     }
 }
-// class SlotMachineReel {
-//     currentPosition = 0
-//     reelStrip: ReelStrip = DEFAULT_REEL
-//     elements: HTMLTableCellElement[]
-//     advance: number = 0
-//     spinInterval: number
-//     constructor(elements: HTMLTableCellElement[]) {
-//         this.elements = elements
-//         this.updateElements()
-//     }
-//     spin() {
-//         this.advance = random(10, 20);
-//         clearInterval(this.spinInterval)
-//         this.spinInterval = setInterval(() => { this.advanceReel() }, 100 + random(-40, 30))
-//     }
-//     advanceReel() {
-//         this.currentPosition = (this.currentPosition + 1) % this.reelStrip.length
-//         this.updateElements()
-//         if (this.advance <= 0) {
-//             clearInterval(this.spinInterval)
-//             return
-//         }
-//         this.advance--
-//     }
-//     updateElements() {
-//         if (this.reelStrip.length < this.elements.length) {
-//             throw new Error("reel too short");
-//         }
-//         for (let i = 0; i < this.elements.length; i++) {
-//             let symbol = this.reelStrip[(this.currentPosition + i) % this.reelStrip.length];
-//             let cellImageSrc = SYMBOL_DATA[symbol].image;
-//             this.elements[i].querySelector("img").replaceWith(cellImageSrc);
-//             console.log(this.elements[i].querySelector("img").src)
-//         }
-//     }
-// }
 function slotCell(symbolPath) {
     let cellImage = createImage(symbolPath);
     cellImage.classList.add("slot-cell");
     return cellImage;
 }
-// let slotMachine = new SlotMachine(3, 3)
+let slotMachine = new SlotMachine();
+document.querySelector("#spin").addEventListener("click", () => { slotMachine.spin(); });
 // document.querySelector("#spin").addEventListener("click", () => { slotMachine.spin() })
 //# sourceMappingURL=prototype.js.map

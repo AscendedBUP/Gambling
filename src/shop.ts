@@ -26,5 +26,5 @@ for (const symbol in testSymbolSpread) {
     }
 }
 
-console.log(reelContents)
+// console.log(reelContents)
 selectedReel.querySelector(".reel-contents").replaceChildren(...reelContents)

@@ -2,6 +2,8 @@ const SLOT_MACHINE_MAX_WIDTH = 5
 const SLOT_MACHINE_STARTING_WIDTH = 3
 const SLOT_MACHINE_HEIGHT = 3
 
+let score = 0
+
 type SymbolSpread = Record<SlotMachineSymbols, number>
 
 enum SlotMachineSymbols {
@@ -38,47 +40,78 @@ const SYMBOL_DATA: {[key in SlotMachineSymbols]: SymbolDataInterface} = {
 class SlotMachine {
     element = document.querySelector("#slot-machine") as HTMLDivElement
     reels: SlotMachineReel[] = []
-    result = new Matrix<SlotMachineSymbols>(SLOT_MACHINE_MAX_WIDTH, SLOT_MACHINE_HEIGHT)
+    rolledSymbols = new Matrix<SlotMachineSymbols>(SLOT_MACHINE_MAX_WIDTH, SLOT_MACHINE_HEIGHT)
 
     constructor() {
-        let width = SLOT_MACHINE_STARTING_WIDTH
-
-        for (let i = 0; i < width; i++) {
+        for (let i = 0; i < SLOT_MACHINE_STARTING_WIDTH; i++) {
             this.reels.push(new SlotMachineReel(this.element))
         }
     }
 
-    spin() {
+    async spin() {
+        let resultPromises: Promise<SlotMachineSymbols[]>[] = []
+
         for (const reel of this.reels) {
-            reel.spin()
+            resultPromises.push(reel.spin())
         }
+
+        for (let i = 0; i < resultPromises.length; i++) {
+            let reelResult = await resultPromises[i]
+            this.rolledSymbols.replaceColumn(i, ...reelResult)
+        }
+
+        this.calculateResultScore()
+    }
+
+    calculateResultScore() {
+        console.log(this.rolledSymbols)
     }
 }
-
-// class SlotMachineReel {
-//     spin() {
-
-//     }
-// }
 
 class SlotMachineReel {
     symbolSpread: SymbolSpread = testSymbolSpread
     element: HTMLDivElement
+    currentSymbols: SlotMachineSymbols[]
 
     constructor(slotMachine: HTMLDivElement) {
         this.element = this.createReelElement(slotMachine)
+        this.currentSymbols = this.fillReel(4).slice(1, 3)
+        this.element.scroll({top: CELL_SIZE, behavior: "instant"})
     }
 
-    createReelElement(slotMachine: HTMLDivElement): HTMLDivElement {
-        let reelTemplate = document.querySelector("#reel-template") as HTMLTemplateElement
-        let newReel = reelTemplate.content.querySelector(".reel") as HTMLDivElement
+    async spin(): Promise<SlotMachineSymbols[]> {
+        this.fillReel(SPIN_LENGTH)
+        let result = this.fillReel(4)
 
-        slotMachine.appendChild(newReel)
-        return newReel
+        await smoothScrollBy(this.element, {top: -CELL_SIZE / 2})
+        await acceleratingScrollTo(this.element, {top: CELL_SIZE * (SPIN_LENGTH + 1) }, 50, 4)
+        
+        this.cleanReel()
+        return result
+    }
+
+    fillReel(symbolAmount: number): SlotMachineSymbols[] {
+        let reelCells: HTMLImageElement[] = []
+        let resultSymbols = this.getRandomSymbols(symbolAmount)
+
+        for (const symbol of resultSymbols) {
+            let newCell = slotCell(SYMBOL_DATA[symbol].imagePath)
+            reelCells.push(newCell)
+        }
+
+        this.element.append(...reelCells)
+        return resultSymbols
+    }
+
+    cleanReel() {
+        let necessaryCells = this.element.querySelectorAll("img:nth-last-child(-n + 4)")
+        this.element.replaceChildren(...necessaryCells)
+        this.element.scrollTo({top: CELL_SIZE, behavior: "instant"})
     }
 
     getRandomSymbols(length: number): SlotMachineSymbols[] {
-        const potentialCells: SlotMachineSymbols[] = []
+        let result: SlotMachineSymbols[] = []
+        let potentialCells: SlotMachineSymbols[] = []
 
         for (const symbol in testSymbolSpread) {
             let amount = testSymbolSpread[symbol]
@@ -86,41 +119,26 @@ class SlotMachineReel {
                 potentialCells.push(symbol as SlotMachineSymbols)
             }
         }
-    
+        
+        for (let i = 0; i < length; i++) {
+            let randomIndex = random(0, potentialCells.length)
+            let symbol = potentialCells.splice(randomIndex, 1)[0]
+            result.push(symbol)
+        }
+
+        return result
     }
 
-    // spin() {
-    //     this.advance = random(10, 20);
+    createReelElement(slotMachine: HTMLDivElement): HTMLDivElement {
+        let reelTemplate = document.querySelector("#reel-template") as HTMLTemplateElement
+        let reelTemplateClone = reelTemplate.content
+        let newReel = reelTemplateClone.querySelector(".reel").cloneNode() as HTMLDivElement
 
-    //     clearInterval(this.spinInterval)
-    //     this.spinInterval = setInterval(() => { this.advanceReel() }, 100 + random(-40, 30))
-    // }
+        console.log(newReel)
 
-    // advanceReel() {
-    //     this.currentPosition = (this.currentPosition + 1) % this.reelStrip.length
-    //     this.updateElements()
-
-    //     if (this.advance <= 0) {
-    //         clearInterval(this.spinInterval)
-    //         return
-    //     }
-
-    //     this.advance--
-    // }
-
-    // updateElements() {
-    //     if (this.reelStrip.length < this.elements.length) {
-    //         throw new Error("reel too short");
-    //     }
-
-    //     for (let i = 0; i < this.elements.length; i++) {
-    //         let symbol = this.reelStrip[(this.currentPosition + i) % this.reelStrip.length];
-    //         let cellImageSrc = SYMBOL_DATA[symbol].image;
-
-    //         this.elements[i].querySelector("img").replaceWith(cellImageSrc);
-    //         console.log(this.elements[i].querySelector("img").src)
-    //     }
-    // }
+        slotMachine.appendChild(newReel)
+        return newReel
+    }
 }
 
 function slotCell(symbolPath: string): HTMLImageElement {
@@ -129,7 +147,9 @@ function slotCell(symbolPath: string): HTMLImageElement {
     return cellImage
 }
 
-// let slotMachine = new SlotMachine(3, 3)
+let slotMachine = new SlotMachine()
+
+document.querySelector("#spin").addEventListener("click", () => { slotMachine.spin() })
 
 // document.querySelector("#spin").addEventListener("click", () => { slotMachine.spin() })
 
