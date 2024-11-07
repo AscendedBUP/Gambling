@@ -38,19 +38,22 @@ var SlotMachineSymbols;
 })(SlotMachineSymbols || (SlotMachineSymbols = {}));
 const SYMBOL_DATA = {
     "symbol-1": {
-        imagePath: "symbols/cherry.png",
+        imageSrc: "symbols/cherry.png",
         image: slotCell("symbols/cherry.png"),
-        score: 5
+        score: 5,
+        cost: 5,
     },
     "symbol-2": {
-        imagePath: "symbols/bell.png",
+        imageSrc: "symbols/bell.png",
         image: slotCell("symbols/bell.png"),
-        score: 10
+        score: 10,
+        cost: 20,
     },
     "symbol-3": {
-        imagePath: "symbols/star.png",
+        imageSrc: "symbols/star.png",
         image: slotCell("symbols/star.png"),
-        score: 25
+        score: 25,
+        cost: 50,
     },
 };
 class SlotMachine {
@@ -127,7 +130,7 @@ class SlotMachineReel {
         let reelCells = [];
         let resultSymbols = this.getRandomSymbols(symbolAmount);
         for (const symbol of resultSymbols) {
-            let newCell = slotCell(SYMBOL_DATA[symbol].imagePath);
+            let newCell = slotCell(SYMBOL_DATA[symbol].imageSrc);
             reelCells.push(newCell);
         }
         this.element.append(...reelCells);
@@ -163,15 +166,6 @@ class SlotMachineReel {
         slotMachine.appendChild(newReel);
         return newReel;
     }
-    createContentsDisplay(reelListingContainer, index) {
-        let reelListingTemplate = document.querySelector("#reel-listing-template");
-        let reelListingClone = reelListingTemplate.content.cloneNode(true);
-        let reelNameElement = reelListingClone.querySelector(".reel-name");
-        let reelContents = reelListingClone.querySelector(".reel-contents");
-        reelNameElement.textContent = `Reel ${index + 1}`;
-        reelListingContainer.appendChild(reelListingClone);
-        return reelContents;
-    }
     setSymbolCount(symbolSpread, symbol, newAmount) {
         newAmount = Math.max(0, newAmount);
         let difference = newAmount - symbolSpread[symbol];
@@ -201,7 +195,7 @@ class ReelListing {
     addToContents(symbol, count) {
         let newElements = [];
         for (let i = 0; i < count; i++) {
-            let newImage = createImage(SYMBOL_DATA[symbol].imagePath);
+            let newImage = createImage(SYMBOL_DATA[symbol].imageSrc);
             newImage.setAttribute("symbol", symbol);
             newElements.push(newImage);
         }
@@ -220,8 +214,7 @@ class ReelListing {
         let reelListingTemplate = document.querySelector("#reel-listing-template");
         let templateContent = reelListingTemplate.content.cloneNode(true);
         let reelListing = templateContent.querySelector(".reel-listing");
-        let reelNameElement = templateContent.querySelector(".reel-name");
-        reelNameElement.textContent = `Reel ${index + 1}`;
+        templateContent.querySelector(".reel-name").textContent = `Reel ${index + 1}`;
         ReelListing.listingContainer.appendChild(reelListing);
         return reelListing;
     }
@@ -241,6 +234,7 @@ function updateScore(points) {
     console.log("current score", score);
 }
 ReelListing.listingContainer = REEL_SELECTOR;
+updateScore(2000);
 let slotMachine = new SlotMachine();
 document.querySelector("#spin").addEventListener("click", () => { slotMachine.spin(); });
 //# sourceMappingURL=prototype.js.map

@@ -64,12 +64,17 @@ function smoothScroll(element, offset, timeLimit = 3000) {
     let scrollTargetX = (offset.left) ? offset.left : element.scrollLeft;
     let scrollTargetY = (offset.top) ? offset.top : element.scrollTop;
     return new Promise((resolve, reject) => {
-        const failureTimer = setTimeout(reject, timeLimit);
+        const failureTimer = setTimeout(failScroll, timeLimit);
         element.addEventListener("scrollend", onScrollSuccessful, { once: true });
         element.scrollTo({ behavior: "smooth", left: scrollTargetX, top: scrollTargetY });
+        console.log(element.scrollTop);
         function onScrollSuccessful() {
             clearTimeout(failureTimer);
             resolve();
+        }
+        function failScroll() {
+            console.log(element.scrollTop);
+            reject();
         }
     });
 }

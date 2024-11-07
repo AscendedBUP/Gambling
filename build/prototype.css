@@ -59,7 +59,7 @@ body {
     overflow: hidden;
 }
 
-#listings {
+#symbol-listings {
     --listing-height: 180px;
 
     flex: 0 1 calc(var(--listing-height) * 2 + 20px);

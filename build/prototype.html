@@ -11,26 +11,7 @@
     <h1 id="points-display">Points: 0</h2>
 
     <div id="slot-page">
-        <div id="slot-machine">
-            <!-- <div class="reel">
-                <img class="slot-cell" src="symbols/cherry.png">
-                <img class="slot-cell" src="symbols/bell.png">
-                <img class="slot-cell" src="symbols/cherry.png">
-                <img class="slot-cell" src="symbols/star.png">
-            </div>
-            <div class="reel">
-                <img class="slot-cell" src="symbols/cherry.png">
-                <img class="slot-cell" src="symbols/bell.png">
-                <img class="slot-cell" src="symbols/cherry.png">
-                <img class="slot-cell" src="symbols/star.png">
-            </div>
-            <div class="reel">
-                <img class="slot-cell" src="symbols/cherry.png">
-                <img class="slot-cell" src="symbols/bell.png">
-                <img class="slot-cell" src="symbols/cherry.png">
-                <img class="slot-cell" src="symbols/star.png">
-            </div> -->
-        </div>
+        <div id="slot-machine"></div>
 
         <template id="reel-template">
             <div class="reel"></div>
@@ -41,25 +22,15 @@
     </div>
 
     <div id="shop-page">
-        <div id="listings">
-            <div class="symbol-listing">
-                <img src="symbols/cherry.png">
-                <h3>Cost: 5</h3>
-                <button class="buy-symbol">Buy</button>
-            </div>
+        <div id="symbol-listings"></div>
 
+        <template id="symbol-listing-template">
             <div class="symbol-listing">
-                <img src="symbols/bell.png">
-                <h3>Cost: 20</h3>
-                <button class="buy-symbol">Buy</button>
+                <img class="listing-image">
+                <h3 class="listing-cost"></h3>
+                <button class="buy-button">Buy</button>
             </div>
-
-            <div class="symbol-listing">
-                <img src="symbols/star.png">
-                <h3>Cost: 50</h3>
-                <button class="buy-symbol">Buy</button>
-            </div>
-        </div>
+        </template>
 
         <div id="reel-selector"></div>
 

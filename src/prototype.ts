@@ -35,27 +35,30 @@ enum SlotMachineSymbols {
 }
 
 interface SymbolDataInterface {
-    imagePath: string
+    imageSrc: string
     image: HTMLImageElement
     score: number
+    cost: number
 }
 
 const SYMBOL_DATA: {[key in SlotMachineSymbols]: SymbolDataInterface} = {
     "symbol-1": {
-        imagePath: "symbols/cherry.png",
+        imageSrc: "symbols/cherry.png",
         image: slotCell("symbols/cherry.png"), 
-        score: 5
+        score: 5,
+        cost: 5,
     },
     "symbol-2": {
-        imagePath: "symbols/bell.png",
+        imageSrc: "symbols/bell.png",
         image: slotCell("symbols/bell.png"), 
-        score: 10
-    
+        score: 10,
+        cost: 20,
     },
     "symbol-3": {
-        imagePath: "symbols/star.png",
+        imageSrc: "symbols/star.png",
         image: slotCell("symbols/star.png"),
-        score: 25
+        score: 25,
+        cost: 50,
     },
 }
 
@@ -153,7 +156,7 @@ class SlotMachineReel {
         let resultSymbols = this.getRandomSymbols(symbolAmount)
 
         for (const symbol of resultSymbols) {
-            let newCell = slotCell(SYMBOL_DATA[symbol].imagePath)
+            let newCell = slotCell(SYMBOL_DATA[symbol].imageSrc)
             reelCells.push(newCell)
         }
 
@@ -199,18 +202,6 @@ class SlotMachineReel {
         return newReel
     }
 
-    createContentsDisplay(reelListingContainer: HTMLDivElement, index: number): HTMLDivElement {
-        let reelListingTemplate = document.querySelector("#reel-listing-template") as HTMLTemplateElement
-        let reelListingClone = reelListingTemplate.content.cloneNode(true) as HTMLDivElement
-        let reelNameElement = reelListingClone.querySelector(".reel-name") as HTMLHeadingElement
-        let reelContents = reelListingClone.querySelector(".reel-contents") as HTMLDivElement
-
-        reelNameElement.textContent = `Reel ${index + 1}`
-        
-        reelListingContainer.appendChild(reelListingClone)
-        return reelContents
-    }
-
     setSymbolCount(symbolSpread: SymbolCounts, symbol: SlotMachineSymbols, newAmount: number): boolean {
         newAmount = Math.max(0, newAmount)
         let difference = newAmount - symbolSpread[symbol]
@@ -254,7 +245,7 @@ class ReelListing {
     addToContents(symbol: SlotMachineSymbols, count: number) {
         let newElements: HTMLImageElement[] = []
         for (let i = 0; i < count; i++) {
-            let newImage = createImage(SYMBOL_DATA[symbol].imagePath)
+            let newImage = createImage(SYMBOL_DATA[symbol].imageSrc)
             newImage.setAttribute("symbol", symbol)
             newElements.push(newImage)
         }
@@ -278,9 +269,8 @@ class ReelListing {
         let reelListingTemplate = document.querySelector("#reel-listing-template") as HTMLTemplateElement
         let templateContent = reelListingTemplate.content.cloneNode(true) as HTMLDivElement
         let reelListing = templateContent.querySelector(".reel-listing") as HTMLDivElement
-        let reelNameElement = templateContent.querySelector(".reel-name") as HTMLHeadingElement
 
-        reelNameElement.textContent = `Reel ${index + 1}`
+        templateContent.querySelector(".reel-name").textContent = `Reel ${index + 1}`
         
         ReelListing.listingContainer.appendChild(reelListing)
         return reelListing
@@ -305,7 +295,9 @@ function updateScore(points: number) {
     console.log("current score", score)
 }
 
+
 ReelListing.listingContainer = REEL_SELECTOR
+updateScore(2000);
 let slotMachine = new SlotMachine();
 
 document.querySelector("#spin").addEventListener("click", () => { slotMachine.spin() })
