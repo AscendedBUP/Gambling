@@ -14,17 +14,18 @@ const CELL_SIZE = 128;
 const SPIN_LENGTH = 16;
 const POINT_DISPLAY_FORMAT = "Points: %s";
 const REEL_SELECTOR = document.querySelector("#reel-selector");
+let selectedReel;
 const SEQUENCE_LENGTH_MULTIPLIER = {
     3: 1,
     4: 5,
     5: 50
 };
-const DEFAULT_SYMBOL_SPREAD = {
+const DEFAULT_SYMBOL_COUNTS = {
     "symbol-1": 0,
     "symbol-2": 0,
     "symbol-3": 0,
 };
-const STARTING_SYMBOL_SPREAD = {
+const STARTING_SYMBOL_COUNTS = {
     "symbol-1": 11,
     "symbol-2": 8,
     "symbol-3": 5
@@ -59,7 +60,7 @@ class SlotMachine {
         this.rolledSymbols = new Matrix(SLOT_MACHINE_MAX_WIDTH, SLOT_MACHINE_HEIGHT);
         this.isSpinning = false;
         for (let i = 0; i < SLOT_MACHINE_STARTING_WIDTH; i++) {
-            this.reels.push(new SlotMachineReel(this.element, i, REEL_SELECTOR));
+            this.reels.push(new SlotMachineReel(this.element, i));
         }
     }
     spin() {
@@ -100,14 +101,14 @@ class SlotMachine {
     }
 }
 class SlotMachineReel {
-    constructor(slotMachine, index, reelListingcontainer) {
-        this.symbolSpread = new Proxy(structuredClone(DEFAULT_SYMBOL_SPREAD), {
-            set: this.updateContentsDisplay.bind(this)
+    constructor(slotMachine, index) {
+        this.symbolCounts = new Proxy(structuredClone(DEFAULT_SYMBOL_COUNTS), {
+            set: this.setSymbolCount.bind(this)
         });
         this.element = this.createReelElement(slotMachine);
-        this.contentsDisplay = this.createContentsDisplay(reelListingcontainer, index);
-        for (const symbol in STARTING_SYMBOL_SPREAD) {
-            this.symbolSpread[symbol] = STARTING_SYMBOL_SPREAD[symbol];
+        this.reelListing = new ReelListing(this, index);
+        for (const symbol in STARTING_SYMBOL_COUNTS) {
+            this.symbolCounts[symbol] = STARTING_SYMBOL_COUNTS[symbol];
         }
         this.currentSymbols = this.fillReel(4).slice(1, 3);
         this.element.scroll({ top: CELL_SIZE, behavior: "instant" });
@@ -140,10 +141,10 @@ class SlotMachineReel {
     getRandomSymbols(length) {
         let result = [];
         let potentialCells = [];
-        let test = Object.keys(this.symbolSpread);
+        let test = Object.keys(this.symbolCounts);
         console.log(test);
-        for (const symbol of Object.keys(this.symbolSpread)) {
-            let amount = this.symbolSpread[symbol];
+        for (const symbol of Object.keys(this.symbolCounts)) {
+            let amount = this.symbolCounts[symbol];
             for (let i = 0; i < amount; i++) {
                 potentialCells.push(symbol);
             }
@@ -171,16 +172,31 @@ class SlotMachineReel {
         reelListingContainer.appendChild(reelListingClone);
         return reelContents;
     }
-    updateContentsDisplay(symbolSpread, symbol, newAmount) {
+    setSymbolCount(symbolSpread, symbol, newAmount) {
         newAmount = Math.max(0, newAmount);
         let difference = newAmount - symbolSpread[symbol];
         if (difference > 0) {
-            this.addToContents(symbol, difference);
+            this.reelListing.addToContents(symbol, difference);
         }
         else if (difference < 0) {
-            this.removeFromContents(symbol, -difference);
+            this.reelListing.removeFromContents(symbol, -difference);
         }
         return Reflect.set(symbolSpread, symbol, newAmount);
+    }
+}
+class ReelListing {
+    static selectListing(listing) {
+        if (this.selectedListing) {
+            this.selectedListing.element.classList.remove('selected-reel');
+        }
+        listing.element.classList.add('selected-reel');
+        this.selectedListing = listing;
+    }
+    constructor(reel, index) {
+        this.reel = reel;
+        this.element = this.createListingElement(index);
+        this.reelContentDisplay = this.element.querySelector(".reel-contents");
+        this.element.addEventListener("mousedown", this.selectListing.bind(this));
     }
     addToContents(symbol, count) {
         let newElements = [];
@@ -189,14 +205,28 @@ class SlotMachineReel {
             newImage.setAttribute("symbol", symbol);
             newElements.push(newImage);
         }
-        this.contentsDisplay.append(...newElements);
+        this.reelContentDisplay.append(...newElements);
     }
     removeFromContents(symbol, count) {
-        let symbolImages = this.contentsDisplay.querySelectorAll(`img[symbol=${symbol}]`);
+        let symbolImages = this.reelContentDisplay.querySelectorAll(`img[symbol=${symbol}]`);
         count = Math.min(count, symbolImages.length);
         for (let i = 0; i < count; i++) {
             symbolImages[i].remove();
         }
+    }
+    createListingElement(index) {
+        if (!ReelListing.listingContainer)
+            throw new Error("Listing container has not been set");
+        let reelListingTemplate = document.querySelector("#reel-listing-template");
+        let templateContent = reelListingTemplate.content.cloneNode(true);
+        let reelListing = templateContent.querySelector(".reel-listing");
+        let reelNameElement = templateContent.querySelector(".reel-name");
+        reelNameElement.textContent = `Reel ${index + 1}`;
+        ReelListing.listingContainer.appendChild(reelListing);
+        return reelListing;
+    }
+    selectListing() {
+        ReelListing.selectListing(this);
     }
 }
 function slotCell(symbolPath) {
@@ -210,7 +240,7 @@ function updateScore(points) {
     document.querySelector("#points-display").textContent = `Points: ${score}`;
     console.log("current score", score);
 }
+ReelListing.listingContainer = REEL_SELECTOR;
 let slotMachine = new SlotMachine();
-slotMachine.reels[0].symbolSpread['symbol-3'] = 20;
 document.querySelector("#spin").addEventListener("click", () => { slotMachine.spin(); });
 //# sourceMappingURL=prototype.js.map

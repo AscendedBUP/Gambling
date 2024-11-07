@@ -1,4 +1,4 @@
-type SymbolSpread = Record<SlotMachineSymbols, number>
+type SymbolCounts = Record<SlotMachineSymbols, number>
 
 const SLOT_MACHINE_MAX_WIDTH = 5
 const SLOT_MACHINE_STARTING_WIDTH = 3
@@ -8,19 +8,21 @@ const SPIN_LENGTH = 16
 const POINT_DISPLAY_FORMAT = "Points: %s"
 const REEL_SELECTOR: HTMLDivElement = document.querySelector("#reel-selector")
 
+let selectedReel: SlotMachineReel
+
 const SEQUENCE_LENGTH_MULTIPLIER: Record<number, number> = {
     3: 1,
     4: 5,
     5: 50
 }
 
-const DEFAULT_SYMBOL_SPREAD: Record<SlotMachineSymbols, number> = {
+const DEFAULT_SYMBOL_COUNTS: Record<SlotMachineSymbols, number> = {
     "symbol-1": 0,
     "symbol-2": 0,
     "symbol-3": 0,
 }
 
-const STARTING_SYMBOL_SPREAD: Record<SlotMachineSymbols, number> = {
+const STARTING_SYMBOL_COUNTS: Record<SlotMachineSymbols, number> = {
     "symbol-1": 11,
     "symbol-2": 8,
     "symbol-3": 5
@@ -65,7 +67,7 @@ class SlotMachine {
 
     constructor() {
         for (let i = 0; i < SLOT_MACHINE_STARTING_WIDTH; i++) {
-            this.reels.push(new SlotMachineReel(this.element, i, REEL_SELECTOR))
+            this.reels.push(new SlotMachineReel(this.element, i))
         }
     }
 
@@ -117,18 +119,18 @@ class SlotMachine {
 
 class SlotMachineReel {
     element: HTMLDivElement
-    contentsDisplay: HTMLDivElement
-    symbolSpread = new Proxy(structuredClone(DEFAULT_SYMBOL_SPREAD), {
-        set: this.updateContentsDisplay.bind(this)
+    reelListing: ReelListing
+    symbolCounts = new Proxy(structuredClone(DEFAULT_SYMBOL_COUNTS), {
+        set: this.setSymbolCount.bind(this)
     })
     currentSymbols: SlotMachineSymbols[]
 
-    constructor(slotMachine: HTMLDivElement, index: number, reelListingcontainer: HTMLDivElement) {
+    constructor(slotMachine: HTMLDivElement, index: number) {
         this.element = this.createReelElement(slotMachine)
-        this.contentsDisplay = this.createContentsDisplay(reelListingcontainer, index)
+        this.reelListing = new ReelListing(this, index)
         
-        for (const symbol in STARTING_SYMBOL_SPREAD) {
-            this.symbolSpread[symbol] = STARTING_SYMBOL_SPREAD[symbol]
+        for (const symbol in STARTING_SYMBOL_COUNTS) {
+            this.symbolCounts[symbol] = STARTING_SYMBOL_COUNTS[symbol]
         }
 
         this.currentSymbols = this.fillReel(4).slice(1, 3)
@@ -169,11 +171,11 @@ class SlotMachineReel {
         let result: SlotMachineSymbols[] = []
         let potentialCells: SlotMachineSymbols[] = []
 
-        let test = Object.keys(this.symbolSpread)
+        let test = Object.keys(this.symbolCounts)
         console.log(test)
 
-        for (const symbol of Object.keys(this.symbolSpread)) {
-            let amount = this.symbolSpread[symbol]
+        for (const symbol of Object.keys(this.symbolCounts)) {
+            let amount = this.symbolCounts[symbol]
             for (let i = 0; i < amount; i++) {
                 potentialCells.push(symbol as SlotMachineSymbols)
             }
@@ -209,18 +211,44 @@ class SlotMachineReel {
         return reelContents
     }
 
-    updateContentsDisplay(symbolSpread: SymbolSpread, symbol: SlotMachineSymbols, newAmount: number): boolean {
+    setSymbolCount(symbolSpread: SymbolCounts, symbol: SlotMachineSymbols, newAmount: number): boolean {
         newAmount = Math.max(0, newAmount)
         let difference = newAmount - symbolSpread[symbol]
 
         if (difference > 0) {
-            this.addToContents(symbol, difference)
+            this.reelListing.addToContents(symbol, difference)
         }
         else if (difference < 0) {
-            this.removeFromContents(symbol, -difference)
+            this.reelListing.removeFromContents(symbol, -difference)
         }
 
         return Reflect.set(symbolSpread, symbol, newAmount)
+    }
+}
+
+class ReelListing {
+    reel: SlotMachineReel
+    element: HTMLDivElement
+    reelContentDisplay: HTMLDivElement
+
+    static listingContainer: HTMLDivElement
+    static selectedListing: ReelListing
+
+    static selectListing(listing: ReelListing) {
+        if (this.selectedListing) {
+            this.selectedListing.element.classList.remove('selected-reel')
+        }
+
+        listing.element.classList.add('selected-reel')
+        this.selectedListing = listing
+    }
+
+    constructor(reel: SlotMachineReel, index: number) {
+        this.reel = reel
+        this.element = this.createListingElement(index)
+        this.reelContentDisplay = this.element.querySelector(".reel-contents")
+
+        this.element.addEventListener("mousedown", this.selectListing.bind(this))
     }
 
     addToContents(symbol: SlotMachineSymbols, count: number) {
@@ -231,16 +259,35 @@ class SlotMachineReel {
             newElements.push(newImage)
         }
 
-        this.contentsDisplay.append(...newElements)
+        this.reelContentDisplay.append(...newElements)
     }
 
     removeFromContents(symbol: SlotMachineSymbols, count: number) {
-        let symbolImages = this.contentsDisplay.querySelectorAll(`img[symbol=${symbol}]`)
+        let symbolImages = this.reelContentDisplay.querySelectorAll(`img[symbol=${symbol}]`)
         count = Math.min(count, symbolImages.length)
 
         for (let i = 0; i < count; i++) {
             symbolImages[i].remove()
         }
+    }
+
+    createListingElement(index: number): HTMLDivElement {
+        if (!ReelListing.listingContainer)
+            throw new Error("Listing container has not been set")
+
+        let reelListingTemplate = document.querySelector("#reel-listing-template") as HTMLTemplateElement
+        let templateContent = reelListingTemplate.content.cloneNode(true) as HTMLDivElement
+        let reelListing = templateContent.querySelector(".reel-listing") as HTMLDivElement
+        let reelNameElement = templateContent.querySelector(".reel-name") as HTMLHeadingElement
+
+        reelNameElement.textContent = `Reel ${index + 1}`
+        
+        ReelListing.listingContainer.appendChild(reelListing)
+        return reelListing
+    }
+
+    selectListing() {
+        ReelListing.selectListing(this)
     }
 }
 
@@ -258,8 +305,7 @@ function updateScore(points: number) {
     console.log("current score", score)
 }
 
+ReelListing.listingContainer = REEL_SELECTOR
 let slotMachine = new SlotMachine();
-
-slotMachine.reels[0].symbolSpread['symbol-3'] = 20
 
 document.querySelector("#spin").addEventListener("click", () => { slotMachine.spin() })
