@@ -6,6 +6,7 @@ const SLOT_MACHINE_HEIGHT = 3
 const CELL_SIZE = 128
 const SPIN_LENGTH = 16
 const POINT_DISPLAY_FORMAT = "Points: %s"
+const REEL_SELECTOR: HTMLDivElement = document.querySelector("#reel-selector")
 
 const SEQUENCE_LENGTH_MULTIPLIER: Record<number, number> = {
     3: 1,
@@ -14,6 +15,12 @@ const SEQUENCE_LENGTH_MULTIPLIER: Record<number, number> = {
 }
 
 const DEFAULT_SYMBOL_SPREAD: Record<SlotMachineSymbols, number> = {
+    "symbol-1": 0,
+    "symbol-2": 0,
+    "symbol-3": 0,
+}
+
+const STARTING_SYMBOL_SPREAD: Record<SlotMachineSymbols, number> = {
     "symbol-1": 11,
     "symbol-2": 8,
     "symbol-3": 5
@@ -58,7 +65,7 @@ class SlotMachine {
 
     constructor() {
         for (let i = 0; i < SLOT_MACHINE_STARTING_WIDTH; i++) {
-            this.reels.push(new SlotMachineReel(this.element))
+            this.reels.push(new SlotMachineReel(this.element, i, REEL_SELECTOR))
         }
     }
 
@@ -112,12 +119,18 @@ class SlotMachineReel {
     element: HTMLDivElement
     contentsDisplay: HTMLDivElement
     symbolSpread = new Proxy(structuredClone(DEFAULT_SYMBOL_SPREAD), {
-        set: this.updateContentsDisplay
+        set: this.updateContentsDisplay.bind(this)
     })
     currentSymbols: SlotMachineSymbols[]
 
-    constructor(slotMachine: HTMLDivElement) {
+    constructor(slotMachine: HTMLDivElement, index: number, reelListingcontainer: HTMLDivElement) {
         this.element = this.createReelElement(slotMachine)
+        this.contentsDisplay = this.createContentsDisplay(reelListingcontainer, index)
+        
+        for (const symbol in STARTING_SYMBOL_SPREAD) {
+            this.symbolSpread[symbol] = STARTING_SYMBOL_SPREAD[symbol]
+        }
+
         this.currentSymbols = this.fillReel(4).slice(1, 3)
         this.element.scroll({top: CELL_SIZE, behavior: "instant"})
     }
@@ -156,8 +169,11 @@ class SlotMachineReel {
         let result: SlotMachineSymbols[] = []
         let potentialCells: SlotMachineSymbols[] = []
 
-        for (const symbol in DEFAULT_SYMBOL_SPREAD) {
-            let amount = DEFAULT_SYMBOL_SPREAD[symbol]
+        let test = Object.keys(this.symbolSpread)
+        console.log(test)
+
+        for (const symbol of Object.keys(this.symbolSpread)) {
+            let amount = this.symbolSpread[symbol]
             for (let i = 0; i < amount; i++) {
                 potentialCells.push(symbol as SlotMachineSymbols)
             }
@@ -181,22 +197,51 @@ class SlotMachineReel {
         return newReel
     }
 
-    updateContentsDisplay(symbolSpread: SymbolSpread, key: SlotMachineSymbols, newAmount: number): boolean {
-        newAmount = Math.max(0, newAmount)
-        let difference = newAmount - symbolSpread[key]
+    createContentsDisplay(reelListingContainer: HTMLDivElement, index: number): HTMLDivElement {
+        let reelListingTemplate = document.querySelector("#reel-listing-template") as HTMLTemplateElement
+        let reelListingClone = reelListingTemplate.content.cloneNode(true) as HTMLDivElement
+        let reelNameElement = reelListingClone.querySelector(".reel-name") as HTMLHeadingElement
+        let reelContents = reelListingClone.querySelector(".reel-contents") as HTMLDivElement
 
-
-        if (difference > 0) {
-            this.contentsDisplay
-        }
-        else if (difference < 0) {
-            this.contentsDisplay.querySelectorAll("img")
-        }
-
-        return Reflect.set(symbolSpread, key, newAmount)
+        reelNameElement.textContent = `Reel ${index + 1}`
+        
+        reelListingContainer.appendChild(reelListingClone)
+        return reelContents
     }
 
-    // Add function to add images to content display with a property detailing what symbol they are for
+    updateContentsDisplay(symbolSpread: SymbolSpread, symbol: SlotMachineSymbols, newAmount: number): boolean {
+        newAmount = Math.max(0, newAmount)
+        let difference = newAmount - symbolSpread[symbol]
+
+        if (difference > 0) {
+            this.addToContents(symbol, difference)
+        }
+        else if (difference < 0) {
+            this.removeFromContents(symbol, -difference)
+        }
+
+        return Reflect.set(symbolSpread, symbol, newAmount)
+    }
+
+    addToContents(symbol: SlotMachineSymbols, count: number) {
+        let newElements: HTMLImageElement[] = []
+        for (let i = 0; i < count; i++) {
+            let newImage = createImage(SYMBOL_DATA[symbol].imagePath)
+            newImage.setAttribute("symbol", symbol)
+            newElements.push(newImage)
+        }
+
+        this.contentsDisplay.append(...newElements)
+    }
+
+    removeFromContents(symbol: SlotMachineSymbols, count: number) {
+        let symbolImages = this.contentsDisplay.querySelectorAll(`img[symbol=${symbol}]`)
+        count = Math.min(count, symbolImages.length)
+
+        for (let i = 0; i < count; i++) {
+            symbolImages[i].remove()
+        }
+    }
 }
 
 function slotCell(symbolPath: string): HTMLImageElement {
@@ -213,6 +258,8 @@ function updateScore(points: number) {
     console.log("current score", score)
 }
 
-let slotMachine = new SlotMachine()
+let slotMachine = new SlotMachine();
+
+slotMachine.reels[0].symbolSpread['symbol-3'] = 20
 
 document.querySelector("#spin").addEventListener("click", () => { slotMachine.spin() })

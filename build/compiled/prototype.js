@@ -13,12 +13,18 @@ const SLOT_MACHINE_HEIGHT = 3;
 const CELL_SIZE = 128;
 const SPIN_LENGTH = 16;
 const POINT_DISPLAY_FORMAT = "Points: %s";
+const REEL_SELECTOR = document.querySelector("#reel-selector");
 const SEQUENCE_LENGTH_MULTIPLIER = {
     3: 1,
     4: 5,
     5: 50
 };
 const DEFAULT_SYMBOL_SPREAD = {
+    "symbol-1": 0,
+    "symbol-2": 0,
+    "symbol-3": 0,
+};
+const STARTING_SYMBOL_SPREAD = {
     "symbol-1": 11,
     "symbol-2": 8,
     "symbol-3": 5
@@ -53,7 +59,7 @@ class SlotMachine {
         this.rolledSymbols = new Matrix(SLOT_MACHINE_MAX_WIDTH, SLOT_MACHINE_HEIGHT);
         this.isSpinning = false;
         for (let i = 0; i < SLOT_MACHINE_STARTING_WIDTH; i++) {
-            this.reels.push(new SlotMachineReel(this.element));
+            this.reels.push(new SlotMachineReel(this.element, i, REEL_SELECTOR));
         }
     }
     spin() {
@@ -94,9 +100,15 @@ class SlotMachine {
     }
 }
 class SlotMachineReel {
-    constructor(slotMachine) {
-        this.symbolSpread = DEFAULT_SYMBOL_SPREAD;
+    constructor(slotMachine, index, reelListingcontainer) {
+        this.symbolSpread = new Proxy(structuredClone(DEFAULT_SYMBOL_SPREAD), {
+            set: this.updateContentsDisplay.bind(this)
+        });
         this.element = this.createReelElement(slotMachine);
+        this.contentsDisplay = this.createContentsDisplay(reelListingcontainer, index);
+        for (const symbol in STARTING_SYMBOL_SPREAD) {
+            this.symbolSpread[symbol] = STARTING_SYMBOL_SPREAD[symbol];
+        }
         this.currentSymbols = this.fillReel(4).slice(1, 3);
         this.element.scroll({ top: CELL_SIZE, behavior: "instant" });
     }
@@ -128,8 +140,10 @@ class SlotMachineReel {
     getRandomSymbols(length) {
         let result = [];
         let potentialCells = [];
-        for (const symbol in DEFAULT_SYMBOL_SPREAD) {
-            let amount = DEFAULT_SYMBOL_SPREAD[symbol];
+        let test = Object.keys(this.symbolSpread);
+        console.log(test);
+        for (const symbol of Object.keys(this.symbolSpread)) {
+            let amount = this.symbolSpread[symbol];
             for (let i = 0; i < amount; i++) {
                 potentialCells.push(symbol);
             }
@@ -148,6 +162,42 @@ class SlotMachineReel {
         slotMachine.appendChild(newReel);
         return newReel;
     }
+    createContentsDisplay(reelListingContainer, index) {
+        let reelListingTemplate = document.querySelector("#reel-listing-template");
+        let reelListingClone = reelListingTemplate.content.cloneNode(true);
+        let reelNameElement = reelListingClone.querySelector(".reel-name");
+        let reelContents = reelListingClone.querySelector(".reel-contents");
+        reelNameElement.textContent = `Reel ${index + 1}`;
+        reelListingContainer.appendChild(reelListingClone);
+        return reelContents;
+    }
+    updateContentsDisplay(symbolSpread, symbol, newAmount) {
+        newAmount = Math.max(0, newAmount);
+        let difference = newAmount - symbolSpread[symbol];
+        if (difference > 0) {
+            this.addToContents(symbol, difference);
+        }
+        else if (difference < 0) {
+            this.removeFromContents(symbol, -difference);
+        }
+        return Reflect.set(symbolSpread, symbol, newAmount);
+    }
+    addToContents(symbol, count) {
+        let newElements = [];
+        for (let i = 0; i < count; i++) {
+            let newImage = createImage(SYMBOL_DATA[symbol].imagePath);
+            newImage.setAttribute("symbol", symbol);
+            newElements.push(newImage);
+        }
+        this.contentsDisplay.append(...newElements);
+    }
+    removeFromContents(symbol, count) {
+        let symbolImages = this.contentsDisplay.querySelectorAll(`img[symbol=${symbol}]`);
+        count = Math.min(count, symbolImages.length);
+        for (let i = 0; i < count; i++) {
+            symbolImages[i].remove();
+        }
+    }
 }
 function slotCell(symbolPath) {
     let cellImage = createImage(symbolPath);
@@ -161,7 +211,6 @@ function updateScore(points) {
     console.log("current score", score);
 }
 let slotMachine = new SlotMachine();
-DEFAULT_SYMBOL_SPREAD["symbol-1"] = 0;
-console.log(slotMachine.reels[0].symbolSpread);
+slotMachine.reels[0].symbolSpread['symbol-3'] = 20;
 document.querySelector("#spin").addEventListener("click", () => { slotMachine.spin(); });
 //# sourceMappingURL=prototype.js.map

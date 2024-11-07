@@ -62,7 +62,7 @@
         </div>
 
         <div id="reel-selector">
-            <div class="reel-listing selected-reel">
+            <!-- <div class="reel-listing selected-reel">
                 <h2>Reel 1</h2>
                 <div class="reel-contents">
                     <img src="symbols/cherry.png">
@@ -101,8 +101,15 @@
                 <div class="reel-lock">
                     <button class="buy-reel">Buy Reel<br>500 points</button>
                 </div>
-            </div>
+            </div> -->
         </div>
+
+        <template id="reel-listing-template">
+            <div class="reel-listing">
+                <h2 class="reel-name"></h2>
+                <div class="reel-contents"></div>
+            </div>
+        </template>
 
         <button id="close-shop">&#x2715;</button>
     </div>
