@@ -3,7 +3,7 @@ let shopPage = document.querySelector("#shop-page");
 document.querySelector("#shop").addEventListener('click', switchToShop);
 document.querySelector("#close-shop").addEventListener('mousedown', switchToSlot);
 // switchToShop()
-shopPage.style.display = 'none';
+switchToSlot();
 function switchToShop() {
     slotPage.style.display = 'none';
     shopPage.style.display = null;

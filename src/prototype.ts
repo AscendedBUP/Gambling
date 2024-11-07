@@ -69,6 +69,8 @@ class SlotMachine {
     isSpinning: boolean = false
 
     constructor() {
+        console.log(this.element)
+
         for (let i = 0; i < SLOT_MACHINE_STARTING_WIDTH; i++) {
             this.reels.push(new SlotMachineReel(this.element, i))
         }
@@ -174,9 +176,6 @@ class SlotMachineReel {
         let result: SlotMachineSymbols[] = []
         let potentialCells: SlotMachineSymbols[] = []
 
-        let test = Object.keys(this.symbolCounts)
-        console.log(test)
-
         for (const symbol of Object.keys(this.symbolCounts)) {
             let amount = this.symbolCounts[symbol]
             for (let i = 0; i < amount; i++) {
@@ -195,9 +194,11 @@ class SlotMachineReel {
 
     createReelElement(slotMachine: HTMLDivElement): HTMLDivElement {
         let reelTemplate = document.querySelector("#reel-template") as HTMLTemplateElement
-        let reelTemplateClone = reelTemplate.content
-        let newReel = reelTemplateClone.querySelector(".reel").cloneNode() as HTMLDivElement
+        let templateClone = reelTemplate.content.cloneNode(true) as HTMLDivElement
+        let newReel = templateClone.querySelector(".reel") as HTMLDivElement
 
+        newReel.setAttribute("test", `1`)
+        
         slotMachine.appendChild(newReel)
         return newReel
     }
@@ -295,9 +296,12 @@ function updateScore(points: number) {
     console.log("current score", score)
 }
 
-
 ReelListing.listingContainer = REEL_SELECTOR
 updateScore(2000);
-let slotMachine = new SlotMachine();
 
-document.querySelector("#spin").addEventListener("click", () => { slotMachine.spin() })
+delay(40)
+.then(() => {
+    let slotMachine = new SlotMachine();
+    slotMachine.element.onscroll = () => {console.log("is scrolling")}
+    document.querySelector("#spin").addEventListener("click", () => { slotMachine.spin() })
+})

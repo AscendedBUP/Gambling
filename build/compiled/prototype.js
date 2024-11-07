@@ -62,6 +62,7 @@ class SlotMachine {
         this.reels = [];
         this.rolledSymbols = new Matrix(SLOT_MACHINE_MAX_WIDTH, SLOT_MACHINE_HEIGHT);
         this.isSpinning = false;
+        console.log(this.element);
         for (let i = 0; i < SLOT_MACHINE_STARTING_WIDTH; i++) {
             this.reels.push(new SlotMachineReel(this.element, i));
         }
@@ -144,8 +145,6 @@ class SlotMachineReel {
     getRandomSymbols(length) {
         let result = [];
         let potentialCells = [];
-        let test = Object.keys(this.symbolCounts);
-        console.log(test);
         for (const symbol of Object.keys(this.symbolCounts)) {
             let amount = this.symbolCounts[symbol];
             for (let i = 0; i < amount; i++) {
@@ -161,8 +160,9 @@ class SlotMachineReel {
     }
     createReelElement(slotMachine) {
         let reelTemplate = document.querySelector("#reel-template");
-        let reelTemplateClone = reelTemplate.content;
-        let newReel = reelTemplateClone.querySelector(".reel").cloneNode();
+        let templateClone = reelTemplate.content.cloneNode(true);
+        let newReel = templateClone.querySelector(".reel");
+        newReel.setAttribute("test", `1`);
         slotMachine.appendChild(newReel);
         return newReel;
     }
@@ -235,6 +235,10 @@ function updateScore(points) {
 }
 ReelListing.listingContainer = REEL_SELECTOR;
 updateScore(2000);
-let slotMachine = new SlotMachine();
-document.querySelector("#spin").addEventListener("click", () => { slotMachine.spin(); });
+delay(40)
+    .then(() => {
+    let slotMachine = new SlotMachine();
+    slotMachine.element.onscroll = () => { console.log("is scrolling"); };
+    document.querySelector("#spin").addEventListener("click", () => { slotMachine.spin(); });
+});
 //# sourceMappingURL=prototype.js.map
