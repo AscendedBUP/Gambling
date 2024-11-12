@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset='utf-8'>
     <meta http-equiv='X-UA-Compatible' content='IE=edge'>
@@ -7,41 +8,63 @@
     <meta name='viewport' content='width=device-width, initial-scale=1'>
     <link rel='stylesheet' type='text/css' media='screen' href='prototype.css'>
 </head>
+
 <body>
-    <h1 id="points-display">Points: 0</h2>
+    <div id="title-screen">
+        <h1>Slot Machine Game</h1>
 
-    <div id="slot-page">
-        <div id="slot-machine"></div>
-
-        <template id="reel-template">
-            <div class="reel"></div>
-        </template>
-    
-        <button id="spin">SPIN!</button>
-        <button id="shop">Shop</button>
+        <h2>Choose game mode</h2>
+        <button class="ui-button" onclick="startGame(10)">10 Spins</button>
+        <button class="ui-button" onclick="startGame(30)">30 Spins</button>
+        <button class="ui-button" onclick="startGame(50)">50 Spins</button>
     </div>
 
-    <div id="shop-page">
-        <div id="symbol-listings"></div>
+    <div id="game">
+        <div>
+            <h1 id="spins-display">Spins: 0</h1>
+            <h1 id="separator"> | </h1>
+            <h1 id="points-display">Points: 0</h1>
+        </div>
 
-        <template id="symbol-listing-template">
-            <div class="symbol-listing">
-                <img class="listing-image">
-                <h3 class="listing-cost"></h3>
-                <button class="buy-button">Buy</button>
-            </div>
-        </template>
+        <div id="slot-page">
+            <div id="slot-machine"></div>
 
-        <div id="reel-selector"></div>
+            <template id="reel-template">
+                <div class="reel"></div>
+            </template>
 
-        <template id="reel-listing-template">
-            <div class="reel-listing">
-                <h2 class="reel-name"></h2>
-                <div class="reel-contents"></div>
-            </div>
-        </template>
+            <button id="spin" class="ui-button">SPIN!</button>
+            <button id="shop" class="ui-button">Shop</button>
+        </div>
 
-        <button id="close-shop">&#x2715;</button>
+        <div id="shop-page">
+            <div id="symbol-listings"></div>
+
+            <template id="symbol-listing-template">
+                <div class="symbol-listing">
+                    <img class="listing-image">
+                    <h3 class="listing-cost"></h3>
+                    <button class="buy-button">Buy</button>
+                </div>
+            </template>
+
+            <div id="reel-selector"></div>
+
+            <template id="reel-listing-template">
+                <div class="reel-listing">
+                    <h2 class="reel-name"></h2>
+                    <div class="reel-contents"></div>
+                </div>
+            </template>
+
+            <button id="close-shop">&#x2715;</button>
+        </div>
+    </div>
+
+    <div id="game-over-screen">
+        <h1>Game Over!</h1>
+        <h2 id="final-score">Final Score: </h2>
+        <button class="ui-button" onclick="endGame()">Play Again?</button>
     </div>
 
     <script src="compiled/advanced_types.js"></script>
@@ -51,4 +74,5 @@
     <script src="compiled/shop.js"></script>
     <script src="compiled/reel_shop.js"></script>
 </body>
+
 </html>

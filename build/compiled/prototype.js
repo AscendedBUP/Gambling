@@ -8,7 +8,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 const SLOT_MACHINE_MAX_WIDTH = 5;
-const SLOT_MACHINE_STARTING_WIDTH = 3;
+const SLOT_MACHINE_STARTING_WIDTH = 5;
 const SLOT_MACHINE_HEIGHT = 3;
 const CELL_SIZE = 128;
 const SPIN_LENGTH = 16;
@@ -24,17 +24,26 @@ const DEFAULT_SYMBOL_COUNTS = {
     "symbol-1": 0,
     "symbol-2": 0,
     "symbol-3": 0,
+    "symbol-4": 0,
+    "symbol-5": 0,
+    "symbol-6": 0,
 };
 const STARTING_SYMBOL_COUNTS = {
-    "symbol-1": 11,
-    "symbol-2": 8,
-    "symbol-3": 5
+    "symbol-1": 20,
+    "symbol-2": 15,
+    "symbol-3": 5,
+    "symbol-4": 5,
+    "symbol-5": 0,
+    "symbol-6": 3,
 };
 var SlotMachineSymbols;
 (function (SlotMachineSymbols) {
     SlotMachineSymbols["CHERRY"] = "symbol-1";
-    SlotMachineSymbols["BELL"] = "symbol-2";
-    SlotMachineSymbols["STAR"] = "symbol-3";
+    SlotMachineSymbols["GRAPE"] = "symbol-2";
+    SlotMachineSymbols["BELL"] = "symbol-3";
+    SlotMachineSymbols["LUCKY"] = "symbol-4";
+    SlotMachineSymbols["STAR"] = "symbol-5";
+    SlotMachineSymbols["SEVEN"] = "symbol-6";
 })(SlotMachineSymbols || (SlotMachineSymbols = {}));
 const SYMBOL_DATA = {
     "symbol-1": {
@@ -44,16 +53,34 @@ const SYMBOL_DATA = {
         cost: 5,
     },
     "symbol-2": {
-        imageSrc: "symbols/bell.png",
-        image: slotCell("symbols/bell.png"),
+        imageSrc: "symbols/grape.png",
+        image: slotCell("symbols/grape.png"),
         score: 10,
-        cost: 20,
+        cost: 10,
     },
     "symbol-3": {
+        imageSrc: "symbols/bell.png",
+        image: slotCell("symbols/bell.png"),
+        score: 15,
+        cost: 20,
+    },
+    "symbol-4": {
+        imageSrc: "symbols/lucky.png",
+        image: slotCell("symbols/lucky.png"),
+        score: 20,
+        cost: 25,
+    },
+    "symbol-5": {
         imageSrc: "symbols/star.png",
         image: slotCell("symbols/star.png"),
-        score: 25,
-        cost: 50,
+        score: 50,
+        cost: 30,
+    },
+    "symbol-6": {
+        imageSrc: "symbols/seven.png",
+        image: slotCell("symbols/seven.png"),
+        score: 100,
+        cost: 100,
     },
 };
 class SlotMachine {
@@ -69,13 +96,14 @@ class SlotMachine {
     }
     spin() {
         return __awaiter(this, void 0, void 0, function* () {
-            if (this.isSpinning)
+            if (this.isSpinning || score <= 0 || spins <= 0)
                 return;
+            updateScore(-1);
             this.isSpinning = true;
             let resultPromises = [];
             for (const reel of this.reels) {
                 resultPromises.push(reel.spin());
-                yield delay(400);
+                yield delay(200);
             }
             for (let i = 0; i < resultPromises.length; i++) {
                 let reelResult = yield resultPromises[i];
@@ -83,6 +111,7 @@ class SlotMachine {
             }
             this.calculateResultScore();
             this.isSpinning = false;
+            updateSpins(-1);
         });
     }
     calculateResultScore() {
@@ -232,13 +261,26 @@ function updateScore(points) {
     score += points;
     document.querySelector("#points-display").textContent = `Points: ${score}`;
     console.log("current score", score);
+    if (score <= 0) {
+        gameOver();
+    }
+}
+let spins = 0;
+function updateSpins(difference) {
+    spins += difference;
+    document.querySelector("#spins-display").textContent = `Spins: ${spins}`;
+    if (spins <= 0) {
+        gameOver();
+    }
 }
 ReelListing.listingContainer = REEL_SELECTOR;
-updateScore(2000);
-delay(40)
-    .then(() => {
-    let slotMachine = new SlotMachine();
+updateScore(100);
+let slotMachine;
+// delay(40)
+// .then(() => { startSlotMachine() })
+function startSlotMachine() {
+    slotMachine = new SlotMachine();
     slotMachine.element.onscroll = () => { console.log("is scrolling"); };
     document.querySelector("#spin").addEventListener("click", () => { slotMachine.spin(); });
-});
+}
 //# sourceMappingURL=prototype.js.map

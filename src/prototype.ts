@@ -1,7 +1,7 @@
 type SymbolCounts = Record<SlotMachineSymbols, number>
 
 const SLOT_MACHINE_MAX_WIDTH = 5
-const SLOT_MACHINE_STARTING_WIDTH = 3
+const SLOT_MACHINE_STARTING_WIDTH = 5
 const SLOT_MACHINE_HEIGHT = 3
 const CELL_SIZE = 128
 const SPIN_LENGTH = 16
@@ -20,18 +20,27 @@ const DEFAULT_SYMBOL_COUNTS: Record<SlotMachineSymbols, number> = {
     "symbol-1": 0,
     "symbol-2": 0,
     "symbol-3": 0,
+    "symbol-4": 0,
+    "symbol-5": 0,
+    "symbol-6": 0,
 }
 
 const STARTING_SYMBOL_COUNTS: Record<SlotMachineSymbols, number> = {
-    "symbol-1": 11,
-    "symbol-2": 8,
-    "symbol-3": 5
+    "symbol-1": 20,
+    "symbol-2": 15,
+    "symbol-3": 5,
+    "symbol-4": 5,
+    "symbol-5": 0,
+    "symbol-6": 3,
 }
 
 enum SlotMachineSymbols {
     CHERRY = 'symbol-1', 
-    BELL = 'symbol-2', 
-    STAR = 'symbol-3',
+    GRAPE = 'symbol-2',
+    BELL = 'symbol-3', 
+    LUCKY = 'symbol-4',
+    STAR = 'symbol-5',
+    SEVEN = 'symbol-6',
 }
 
 interface SymbolDataInterface {
@@ -49,16 +58,34 @@ const SYMBOL_DATA: {[key in SlotMachineSymbols]: SymbolDataInterface} = {
         cost: 5,
     },
     "symbol-2": {
-        imageSrc: "symbols/bell.png",
-        image: slotCell("symbols/bell.png"), 
+        imageSrc: "symbols/grape.png",
+        image: slotCell("symbols/grape.png"), 
         score: 10,
-        cost: 20,
+        cost: 10,
     },
     "symbol-3": {
+        imageSrc: "symbols/bell.png",
+        image: slotCell("symbols/bell.png"),
+        score: 15,
+        cost: 20,
+    },
+    "symbol-4": {
+        imageSrc: "symbols/lucky.png",
+        image: slotCell("symbols/lucky.png"),
+        score: 20,
+        cost: 25,
+    },
+    "symbol-5": {
         imageSrc: "symbols/star.png",
         image: slotCell("symbols/star.png"),
-        score: 25,
-        cost: 50,
+        score: 50,
+        cost: 30,
+    },
+    "symbol-6": {
+        imageSrc: "symbols/seven.png",
+        image: slotCell("symbols/seven.png"),
+        score: 100,
+        cost: 100,
     },
 }
 
@@ -77,15 +104,16 @@ class SlotMachine {
     }
 
     async spin() {
-        if (this.isSpinning)
+        if (this.isSpinning || score <= 0 || spins <= 0)
             return
 
+        updateScore(-1)
         this.isSpinning = true
         let resultPromises: Promise<SlotMachineSymbols[]>[] = []
 
         for (const reel of this.reels) {
             resultPromises.push(reel.spin())
-            await delay(400)
+            await delay(200)
         }
 
         for (let i = 0; i < resultPromises.length; i++) {
@@ -95,6 +123,8 @@ class SlotMachine {
 
         this.calculateResultScore()
         this.isSpinning = false
+
+        updateSpins(-1)
     }
 
     calculateResultScore() {
@@ -289,19 +319,36 @@ function slotCell(symbolPath: string): HTMLImageElement {
 }
 
 let score = 0
-
 function updateScore(points: number) {
     score += points
     document.querySelector("#points-display").textContent = `Points: ${score}`
     console.log("current score", score)
+
+    if (score <= 0) {
+        gameOver()
+    }
+}
+
+let spins: number = 0
+function updateSpins(difference: number) {
+    spins += difference
+    document.querySelector("#spins-display").textContent = `Spins: ${spins}`
+
+    if (spins <= 0) {
+        gameOver()
+    }
 }
 
 ReelListing.listingContainer = REEL_SELECTOR
-updateScore(2000);
+updateScore(100);
 
-delay(40)
-.then(() => {
-    let slotMachine = new SlotMachine();
+let slotMachine : SlotMachine
+
+// delay(40)
+// .then(() => { startSlotMachine() })
+
+function startSlotMachine() {
+    slotMachine = new SlotMachine()
     slotMachine.element.onscroll = () => {console.log("is scrolling")}
     document.querySelector("#spin").addEventListener("click", () => { slotMachine.spin() })
-})
+}

@@ -20,7 +20,7 @@ function acceleratingScrollTo(element: Element, offset: {left?: number, top?: nu
 			let elementPreviousScroll = element.scrollLeft
 			element.scrollBy({left: currentSpeedX * scrollDirectionX, top: currentSpeedX * scrollDirectionY, behavior: "instant"})
 
-			console.log(elementPreviousScroll, element.scrollLeft)
+			// console.log(elementPreviousScroll, element.scrollLeft)
 
 			if (elementPreviousScroll == element.scrollLeft)
 				failScroll()
@@ -43,7 +43,7 @@ function acceleratingScrollTo(element: Element, offset: {left?: number, top?: nu
 			let elementPreviousScroll = element.scrollTop
 			element.scrollBy({left: currentSpeedY * scrollDirectionX, top: currentSpeedY * scrollDirectionY, behavior: "instant"})
 
-			console.log(elementPreviousScroll, element.scrollTop, scrollTargetY, Math.sign(scrollTargetY - element.scrollTop))
+			// console.log(elementPreviousScroll, element.scrollTop, scrollTargetY, Math.sign(scrollTargetY - element.scrollTop))
 
 			if (elementPreviousScroll == element.scrollTop)
 				failScroll()
@@ -88,7 +88,7 @@ function linearScrollBy(element: Element, offset: {left?: number, top?: number},
     return new Promise<void>((resolve, reject) => {
         const failureTimer = setTimeout(failScroll, timeLimit)
 
-		console.log("scroll before scroll", element.scrollTop)
+		// console.log("scroll before scroll", element.scrollTop)
 
         element.addEventListener("scrollend", onScrollSuccessful, {once: true})
         element.scrollTo({behavior: "smooth", left: scrollTargetX, top: scrollTargetY})
@@ -99,7 +99,7 @@ function linearScrollBy(element: Element, offset: {left?: number, top?: number},
         }
 
 		function failScroll() {
-			console.log("scroll after fail", element.scrollTop)
+			// console.log("scroll after fail", element.scrollTop)
 			reject()
 		}
     })

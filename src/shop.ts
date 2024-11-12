@@ -21,7 +21,7 @@ function createSymbolListing(symbol: SlotMachineSymbols) {
 function buySymbol(symbol: SlotMachineSymbols): void {
     let symbolCost = SYMBOL_DATA[symbol].cost
 
-    if (!ReelListing.selectedListing || score < symbolCost)
+    if (!ReelListing.selectedListing || score <= symbolCost)
         return
 
     let selectedReel = ReelListing.selectedListing.reel

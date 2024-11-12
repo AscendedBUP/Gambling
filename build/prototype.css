@@ -4,7 +4,22 @@ body {
     margin: 0;
     padding: 40px 5% 40px;
     box-sizing: border-box;
+    text-align: center;
 
+    display: flex;
+    flex-flow: column nowrap;
+    overflow: hidden;
+}
+
+#points-display, #spins-display, #separator {
+    display: inline-block;
+}
+
+#title-screen {
+    text-align: center;
+}
+
+#game {
     display: flex;
     flex-flow: column nowrap;
     overflow: hidden;
@@ -32,7 +47,7 @@ body {
 
     display: flex;
     flex-direction: row;
-    gap: 5px;
+    gap: 0;
     width: fit-content;
     height: calc(var(--cell-size) * 3);
 }
@@ -54,6 +69,8 @@ body {
 }
 
 #shop-page {
+    flex: 1 1 auto;
+
     display: flex;
     flex-flow: column nowrap;
     overflow: hidden;
@@ -62,7 +79,7 @@ body {
 #symbol-listings {
     --listing-height: 180px;
 
-    flex: 0 1 calc(var(--listing-height) * 2 + 20px);
+    flex: 0 1 calc(var(--listing-height));
 
     display: flex;
     flex-flow: row wrap;
@@ -167,4 +184,20 @@ body {
 
 #close-shop:hover {
     color: rgb(216, 0, 0);
+}
+
+#game-over {
+    position: absolute;
+    left: auto;
+    top: auto;
+    text-align: center;
+}
+
+.ui-button {
+    display: block;
+    margin: 5px auto;
+    font-size: larger;
+    background-color: white;
+    border: 1px solid black;
+    border-radius: 5px;
 }

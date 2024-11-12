@@ -15,7 +15,7 @@ function createSymbolListing(symbol) {
 }
 function buySymbol(symbol) {
     let symbolCost = SYMBOL_DATA[symbol].cost;
-    if (!ReelListing.selectedListing || score < symbolCost)
+    if (!ReelListing.selectedListing || score <= symbolCost)
         return;
     let selectedReel = ReelListing.selectedListing.reel;
     selectedReel.symbolCounts[symbol] += 1;
